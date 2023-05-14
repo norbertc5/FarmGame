@@ -6,20 +6,35 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Moveement Settings")]
+    [Header("Movement")]
     [SerializeField] float speed = 10;
+    float xInput;
+    float yInput;
+    CharacterController characterController;
+    const float DEFAULT_SPEED = 10;
+    const float SPRINT_SPEED = 20;
+    const float CROUCH_SPEED = 5;
+
+    [Header("Jump")]
     [SerializeField] float jumpHeight = 10;
     [SerializeField] float mass = 5;
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundLayer;
+    [SerializeField] float groundCheckRadius = 0.6f;
     float gravity = -10;
     bool isGrounded;
-    float xInput;
-    float yInput;
-    CharacterController characterController;
     Vector3 velocity;
-    const float DEFAULT_SPEED = 10;
-    const float SPRINT_SPEED = 20;
+
+    [Header("Crouch")]
+    [SerializeField] Transform ceilingCheck;
+    [SerializeField] LayerMask ceilingLayer;
+    bool isUnderCeiling;
+    bool isCrouching;
+    bool isResetingtSize;
+    float elapsedTime;
+    Vector3 startScale;
+    Vector3 endScale;
+
 
     [Header("Audio")]
     [SerializeField] AudioClip[] footstepSounds;
@@ -80,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
         // gravity from rigidbody does not work with character controller
         velocity.y += gravity * mass * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
-        isGrounded = Physics.CheckSphere(groundCheck.position, 0.6f, groundLayer);
 
         // when player is on the ground, velocity restarts
         if (isGrounded && velocity.y < 0)
@@ -96,13 +110,53 @@ public class PlayerMovement : MonoBehaviour
             speed = DEFAULT_SPEED;
 
         #endregion
+
+        #region Crouch
+
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            isResetingtSize = true;
+            startScale = transform.localScale;
+            endScale = new Vector3(1, 0.5f, 1);
+           // transform.localScale = new Vector3(1, 0.5f, 1);  // make player smaller
+            speed = CROUCH_SPEED;
+            isCrouching = true;
+            elapsedTime = 0;
+        }
+        // point, wehen player released crouch button or when stop being under sth where he was crouching
+        if(!Input.GetKey(KeyCode.LeftControl) && !isUnderCeiling && isCrouching)
+        {
+            startScale = transform.localScale;
+            endScale = Vector3.one;
+            isResetingtSize = true;
+            velocity.y = 6;
+            speed = DEFAULT_SPEED;
+            isCrouching = false;
+        }
+        // time after stop crouching, when player has time to resize
+        if(isResetingtSize)
+        {
+            elapsedTime += 2 * Time.deltaTime;
+            transform.localScale = Vector3.Lerp(startScale, endScale, elapsedTime);
+
+            if (transform.localScale == endScale)
+                isResetingtSize = false;
+        }
+
+        #endregion
+    }
+
+    private void FixedUpdate()
+    {
+        isUnderCeiling = Physics.CheckSphere(ceilingCheck.position, 1, ceilingLayer);
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     IEnumerator PlayFootstepSounds()
     {
         while(true)
         {
-            if((xInput != 0 || yInput != 0) && isGrounded)
+            if((xInput != 0 || yInput != 0) && isGrounded && !isCrouching)
             {
                 playerSource.PlayOneShot(footstepSounds[actualFootstepSoundIndex]);
                 actualFootstepSoundIndex++;

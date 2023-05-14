@@ -495,7 +495,7 @@
 {"msg":"noderesult","processed_node_count":487,"number_of_nodes_ever_queued":491,"annotation":"Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)","index":370,"exitcode":0,"outputfile":"Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp.dll"}
 {"msg":"inputSignatureChanged","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":489,"changes":[{"key":"InputFileList","value":["Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp.pdb"],"oldvalue":[],"dependency":"explicit"}]}
 {"msg":"runNodeAction","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":489}
-{"msg":"noderesult","processed_node_count":488,"number_of_nodes_ever_queued":491,"annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":489,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Assembly-CSharp.pdb"}
 {"msg":"inputSignatureChanged","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","index":488,"changes":[{"key":"InputFileList","value":["Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp.dll"],"oldvalue":[],"dependency":"explicit"}]}
 {"msg":"runNodeAction","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","index":488}
+{"msg":"noderesult","processed_node_count":488,"number_of_nodes_ever_queued":491,"annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":489,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Assembly-CSharp.pdb"}
 {"msg":"noderesult","processed_node_count":489,"number_of_nodes_ever_queued":491,"annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","index":488,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Assembly-CSharp.dll"}
