@@ -14,6 +14,8 @@ public class PlayerMovement : MonoBehaviour
     const float DEFAULT_SPEED = 10;
     const float SPRINT_SPEED = 20;
     const float CROUCH_SPEED = 5;
+    public bool isWalking;
+    public bool isSprinting;
 
     [Header("Jump")]
     [SerializeField] float jumpHeight = 10;
@@ -29,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform ceilingCheck;
     [SerializeField] LayerMask ceilingLayer;
     bool isUnderCeiling;
-    bool isCrouching;
+    [HideInInspector] public bool isCrouching;
     bool isResetingtSize;
     float elapsedTime;
     Vector3 startScale;
@@ -64,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
         yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
         Vector3 move = transform.right * xInput + transform.forward * yInput;
 
-        // player do not speed up when key on horizontal and vertical axis are pressed at the same time
+        // player do not bobbingSpeed up when key on horizontal and vertical axis are pressed at the same time
         if(xInput != 0 && yInput != 0)
           move = move.normalized * speed * Time.deltaTime;
 
@@ -74,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
 
         #region Jump
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !isCrouching)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);
             playerSource.PlayOneShot(jumpSound);
@@ -105,9 +107,16 @@ public class PlayerMovement : MonoBehaviour
         #region Sprint
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
             speed = SPRINT_SPEED;
+            isWalking = false;
+            isSprinting = true;
+        }
         if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
             speed = DEFAULT_SPEED;
+            isSprinting = false;
+        }
 
         #endregion
 
@@ -144,6 +153,19 @@ public class PlayerMovement : MonoBehaviour
         }
 
         #endregion
+
+        // if player is moving
+        if(xInput != 0 || yInput != 0)
+        {
+            // isSprinting can't be true together with isWalking
+            // player can walk OR sprint
+            if (!isSprinting)
+                isWalking = true;
+        }
+        else
+        {
+            isWalking = false;
+        }
     }
 
     private void FixedUpdate()
