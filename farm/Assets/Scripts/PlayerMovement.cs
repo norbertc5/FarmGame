@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
     float gravity = -10;
     bool isGrounded;
     Vector3 velocity;
+    const float DEFAULT_Y_VELOCITY = -2;
 
     [Header("Crouch")]
     [SerializeField] Transform ceilingCheck;
@@ -78,9 +79,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !isCrouching)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);
+            velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
             playerSource.PlayOneShot(jumpSound);
-            hasPlayedLandSoundPlayed = false;
         }
 
         // land sound plays when player jumps or falls
@@ -127,7 +127,6 @@ public class PlayerMovement : MonoBehaviour
             isResetingtSize = true;
             startScale = transform.localScale;
             endScale = new Vector3(1, 0.5f, 1);
-           // transform.localScale = new Vector3(1, 0.5f, 1);  // make player smaller
             speed = CROUCH_SPEED;
             isCrouching = true;
             elapsedTime = 0;
@@ -138,15 +137,21 @@ public class PlayerMovement : MonoBehaviour
             startScale = transform.localScale;
             endScale = Vector3.one;
             isResetingtSize = true;
-            velocity.y = 6;
             speed = DEFAULT_SPEED;
             isCrouching = false;
+            elapsedTime = 0;
         }
         // time after stop crouching, when player has time to resize
         if(isResetingtSize)
         {
             elapsedTime += 2 * Time.deltaTime;
             transform.localScale = Vector3.Lerp(startScale, endScale, elapsedTime);
+
+            // player smoothly stand up from crouching
+            if (!isCrouching)
+                velocity.y = 1;
+            else // player can't fly when spam crouch button
+                velocity.y = DEFAULT_Y_VELOCITY;
 
             if (transform.localScale == endScale)
                 isResetingtSize = false;
@@ -199,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
 
         while(!hasPlayedLandSoundPlayed)
         {
-            if (isGrounded && !hasPlayedLandSoundPlayed)
+            if (isGrounded && !hasPlayedLandSoundPlayed && !isCrouching)
             {
                 playerSource.PlayOneShot(landSound);
                 hasPlayedLandSoundPlayed = true;
