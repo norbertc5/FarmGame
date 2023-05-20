@@ -26,22 +26,22 @@ public class HeadBobbing : MonoBehaviour
 
     void Update()
     {
-        if(playerMovemnet.isWalking || playerMovemnet.isSprinting)
+        if(PlayerMovement.isWalking || PlayerMovement.isRunning)
         {
             // set bobbingSpeed and bobbingAmplitude according to player speed
-            if (playerMovemnet.isWalking)
+            if (PlayerMovement.isWalking)
             {
                 bobbingSpeed = defaultSpeed;
                 bobbingAmplitude = defaultAmplitude;
             }
-            else if (playerMovemnet.isSprinting)
+            else if (PlayerMovement.isRunning)
             {
                 bobbingSpeed = defaultSpeed * 2;
                 bobbingAmplitude = defaultAmplitude * 2;
             }
 
             // bobbing
-            if(!playerMovemnet.isCrouching)
+            if(!PlayerMovement.isCrouching)
             {
                 elapsedTime += bobbingSpeed * Time.deltaTime;
                 transform.localPosition = new Vector3(transform.localPosition.x, defaulyYPos + Mathf.Sin(elapsedTime) * bobbingAmplitude);

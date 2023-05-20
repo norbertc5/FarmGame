@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -12,10 +11,10 @@ public class PlayerMovement : MonoBehaviour
     float yInput;
     CharacterController characterController;
     const float DEFAULT_SPEED = 10;
-    const float SPRINT_SPEED = 20;
+    const float RUN_SPEED = 20;
     const float CROUCH_SPEED = 5;
-    public bool isWalking;
-    public bool isSprinting;
+    public static bool isWalking;
+    public static bool isRunning;
 
     [Header("Jump")]
     [SerializeField] float jumpHeight = 10;
@@ -32,11 +31,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform ceilingCheck;
     [SerializeField] LayerMask ceilingLayer;
     bool isUnderCeiling;
-    [HideInInspector] public bool isCrouching;
-    bool isResetingtSize;
+    [HideInInspector] public static bool isCrouching;
+    bool isResizing;
     float elapsedTime;
     Vector3 startScale;
     Vector3 endScale;
+    Vector3 weaponStartPosition;
+    Vector3 weaponEndPosition;
+    Shooting shooting;
 
 
     [Header("Audio")]
@@ -52,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         playerSource = GetComponent<AudioSource>();
+        shooting = FindObjectOfType<Shooting>();
     }
 
     private void Start()
@@ -63,15 +66,18 @@ public class PlayerMovement : MonoBehaviour
     {
         #region Movement
 
-        xInput = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        if (isGrounded)
+        {
+            xInput = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
+            yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        }
         Vector3 move = transform.right * xInput + transform.forward * yInput;
 
         // player do not bobbingSpeed up when key on horizontal and vertical axis are pressed at the same time
-        if(xInput != 0 && yInput != 0)
+        if (xInput != 0 && yInput != 0)
           move = move.normalized * speed * Time.deltaTime;
 
-        characterController.Move(move);
+            characterController.Move(move);
 
         #endregion
 
@@ -81,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
             playerSource.PlayOneShot(jumpSound);
+            Crosshair.spread += Crosshair.JUMP_SPREAD;
         }
 
         // land sound plays when player jumps or falls
@@ -104,48 +111,48 @@ public class PlayerMovement : MonoBehaviour
 
         #endregion
 
-        #region Sprint
+        #region Run
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && isGrounded && !isCrouching && (xInput != 0 || yInput != 0))
         {
-            speed = SPRINT_SPEED;
+            speed = RUN_SPEED;
             isWalking = false;
-            isSprinting = true;
+            isRunning = true;
+            Crosshair.baseSpread = Crosshair.RUN_SPREAD;
         }
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             speed = DEFAULT_SPEED;
-            isSprinting = false;
+            isRunning = false;
+            Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
 
         #endregion
 
         #region Crouch
 
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl) && isGrounded)
         {
-            isResetingtSize = true;
-            startScale = transform.localScale;
-            endScale = new Vector3(1, 0.5f, 1);
+            ResizePlayer(transform.localScale, new Vector3(1, 0.5f, 1), shooting.transform.localPosition, new Vector3(0, -0.7f, 0));
             speed = CROUCH_SPEED;
             isCrouching = true;
-            elapsedTime = 0;
+            isWalking = false;
+            Crosshair.baseSpread = Crosshair.CROUCH_SPREAD;
         }
         // point, wehen player released crouch button or when stop being under sth where he was crouching
         if(!Input.GetKey(KeyCode.LeftControl) && !isUnderCeiling && isCrouching)
         {
-            startScale = transform.localScale;
-            endScale = Vector3.one;
-            isResetingtSize = true;
+            ResizePlayer(transform.localScale, Vector3.one, shooting.transform.localPosition, Vector3.zero);
             speed = DEFAULT_SPEED;
             isCrouching = false;
-            elapsedTime = 0;
+            Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
         // time after stop crouching, when player has time to resize
-        if(isResetingtSize)
+        if(isResizing)
         {
             elapsedTime += 2 * Time.deltaTime;
             transform.localScale = Vector3.Lerp(startScale, endScale, elapsedTime);
+            shooting.transform.localPosition = Vector3.Lerp(weaponStartPosition, weaponEndPosition, elapsedTime);
 
             // player smoothly stand up from crouching
             if (!isCrouching)
@@ -154,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
                 velocity.y = DEFAULT_Y_VELOCITY;
 
             if (transform.localScale == endScale)
-                isResetingtSize = false;
+                isResizing = false;
         }
 
         #endregion
@@ -162,9 +169,9 @@ public class PlayerMovement : MonoBehaviour
         // if player is moving
         if(xInput != 0 || yInput != 0)
         {
-            // isSprinting can't be true together with isWalking
+            // isRunning can't be true together with isWalking
             // player can walk OR sprint
-            if (!isSprinting)
+            if (!isRunning && !isCrouching)
                 isWalking = true;
         }
         else
@@ -212,5 +219,22 @@ public class PlayerMovement : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// Set all variables needed to change player size with provide for weapon position.
+    /// </summary>
+    /// <param name="startPlayerScale"></param>
+    /// <param name="endPlayerScale"></param>
+    /// <param name="startWeaponPos"></param>
+    /// <param name="endWeaponPos"></param>
+    void ResizePlayer(Vector3 startPlayerScale, Vector3 endPlayerScale, Vector3 startWeaponPos, Vector3 endWeaponPos)
+    {
+        startScale = startPlayerScale;
+        endScale = endPlayerScale;
+        weaponStartPosition = startWeaponPos;
+        weaponEndPosition = endWeaponPos;
+        elapsedTime = 0;
+        isResizing = true;
     }
 }
