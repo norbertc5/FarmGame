@@ -107,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
 
         // when player is on the ground, velocity restarts
         if (isGrounded && velocity.y < 0)
-            velocity.y = -2;
+            velocity.y = DEFAULT_Y_VELOCITY;
 
         #endregion
 
