@@ -73,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
         }
         Vector3 move = transform.right * xInput + transform.forward * yInput;
 
-        // player do not bobbingSpeed up when key on horizontal and vertical axis are pressed at the same time
+        // player do not speed up when key on horizontal and vertical axis are pressed at the same time
         if (xInput != 0 && yInput != 0)
           move = move.normalized * speed * Time.deltaTime;
 
