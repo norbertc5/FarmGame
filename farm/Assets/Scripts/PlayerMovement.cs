@@ -13,8 +13,8 @@ public class PlayerMovement : MonoBehaviour
     const float DEFAULT_SPEED = 10;
     const float RUN_SPEED = 20;
     const float CROUCH_SPEED = 5;
-    public static bool isWalking;
-    public static bool isRunning;
+    public static bool IsWalking { get; private set; }
+    public static bool IsRunning { get; private set; }
 
     [Header("Jump")]
     [SerializeField] float jumpHeight = 10;
@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] float groundCheckRadius = 0.6f;
     float gravity = -10;
-    bool isGrounded;
+    public bool IsGrounded { get; private set; }
     Vector3 velocity;
     const float DEFAULT_Y_VELOCITY = -2;
 
@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Transform ceilingCheck;
     [SerializeField] LayerMask ceilingLayer;
     bool isUnderCeiling;
-    [HideInInspector] public static bool isCrouching;
+    public static bool IsCrouching { get; private set; }
     bool isResizing;
     float elapsedTime;
     Vector3 startScale;
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 weaponStartPosition;
     Vector3 weaponEndPosition;
     Shooting shooting;
-
+    Vector3 weaponDefaultPos;
 
     [Header("Audio")]
     [SerializeField] AudioClip[] footstepSounds;
@@ -60,13 +60,14 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         StartCoroutine(PlayFootstepSounds());
+        weaponDefaultPos = shooting.transform.localPosition;
     }
 
     void Update()
     {
         #region Movement
 
-        if (isGrounded)
+        if (IsGrounded)
         {
             xInput = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
             yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
@@ -83,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
         #region Jump
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !isCrouching)
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
             playerSource.PlayOneShot(jumpSound);
@@ -91,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // land sound plays when player jumps or falls
-        if(!isGrounded)
+        if(!IsGrounded)
         {
             hasPlayedLandSoundPlayed = false;
             landSoundCoroutine = StartCoroutine(PlayLandSound());
@@ -106,24 +107,24 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
 
         // when player is on the ground, velocity restarts
-        if (isGrounded && velocity.y < 0)
+        if (IsGrounded && velocity.y < 0)
             velocity.y = -2;
 
         #endregion
 
         #region Run
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && isGrounded && !isCrouching && (xInput != 0 || yInput != 0))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && IsGrounded && !IsCrouching && (xInput != 0 || yInput != 0))
         {
             speed = RUN_SPEED;
-            isWalking = false;
-            isRunning = true;
+            IsWalking = false;
+            IsRunning = true;
             Crosshair.baseSpread = Crosshair.RUN_SPREAD;
         }
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             speed = DEFAULT_SPEED;
-            isRunning = false;
+            IsRunning = false;
             Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
 
@@ -131,20 +132,20 @@ public class PlayerMovement : MonoBehaviour
 
         #region Crouch
 
-        if (Input.GetKeyDown(KeyCode.LeftControl) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && IsGrounded)
         {
-            ResizePlayer(transform.localScale, new Vector3(1, 0.5f, 1), shooting.transform.localPosition, new Vector3(0, -0.7f, 0));
+            ResizePlayer(transform.localScale, new Vector3(1, 0.5f, 1),weaponDefaultPos, new Vector3(weaponDefaultPos.x, -0.7f));
             speed = CROUCH_SPEED;
-            isCrouching = true;
-            isWalking = false;
+            IsCrouching = true;
+            IsWalking = false;
             Crosshair.baseSpread = Crosshair.CROUCH_SPREAD;
         }
         // point, wehen player released crouch button or when stop being under sth where he was crouching
-        if(!Input.GetKey(KeyCode.LeftControl) && !isUnderCeiling && isCrouching)
+        if(!Input.GetKey(KeyCode.LeftControl) && !isUnderCeiling && IsCrouching)
         {
-            ResizePlayer(transform.localScale, Vector3.one, shooting.transform.localPosition, Vector3.zero);
+            ResizePlayer(transform.localScale, Vector3.one, shooting.transform.localPosition, weaponDefaultPos);
             speed = DEFAULT_SPEED;
-            isCrouching = false;
+            IsCrouching = false;
             Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
         // time after stop crouching, when player has time to resize
@@ -155,9 +156,9 @@ public class PlayerMovement : MonoBehaviour
             shooting.transform.localPosition = Vector3.Lerp(weaponStartPosition, weaponEndPosition, elapsedTime);
 
             // player smoothly stand up from crouching
-            if (!isCrouching)
+            if (!IsCrouching)
                 velocity.y = 1;
-            else // player can't fly when spam crouch button
+            else // player can'timeToStartSway fly when spam crouch button
                 velocity.y = DEFAULT_Y_VELOCITY;
 
             if (transform.localScale == endScale)
@@ -169,28 +170,28 @@ public class PlayerMovement : MonoBehaviour
         // if player is moving
         if(xInput != 0 || yInput != 0)
         {
-            // isRunning can't be true together with isWalking
+            // IsRunning can'timeToStartSway be true together with IsWalking
             // player can walk OR sprint
-            if (!isRunning && !isCrouching)
-                isWalking = true;
+            if (!IsRunning && !IsCrouching)
+                IsWalking = true;
         }
         else
         {
-            isWalking = false;
+            IsWalking = false;
         }
     }
 
     private void FixedUpdate()
     {
         isUnderCeiling = Physics.CheckSphere(ceilingCheck.position, 1, ceilingLayer);
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        IsGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     IEnumerator PlayFootstepSounds()
     {
         while(true)
         {
-            if((xInput != 0 || yInput != 0) && isGrounded && !isCrouching)
+            if((xInput != 0 || yInput != 0) && IsGrounded && !IsCrouching)
             {
                 playerSource.PlayOneShot(footstepSounds[actualFootstepSoundIndex]);
                 actualFootstepSoundIndex++;
@@ -211,7 +212,7 @@ public class PlayerMovement : MonoBehaviour
 
         while(!hasPlayedLandSoundPlayed)
         {
-            if (isGrounded && !hasPlayedLandSoundPlayed && !isCrouching)
+            if (IsGrounded && !hasPlayedLandSoundPlayed && !IsCrouching)
             {
                 playerSource.PlayOneShot(landSound);
                 hasPlayedLandSoundPlayed = true;

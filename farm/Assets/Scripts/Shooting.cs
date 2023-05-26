@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Shooting : MonoBehaviour
 {
-    [SerializeField] float crosshairSpan = 20;
+    [SerializeField] float crosshairSpread = 20;
 
     void Update()
     {
@@ -18,7 +18,7 @@ public class Shooting : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Crosshair.spread += crosshairSpan;
+            Crosshair.spread += crosshairSpread;
             Physics.Raycast(ray, out hit);
             Debug.Log(hit.collider.name);
         }

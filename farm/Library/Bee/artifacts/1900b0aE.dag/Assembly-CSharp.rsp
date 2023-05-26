@@ -363,6 +363,7 @@
 "Assets/Scripts/MouseLook.cs"
 "Assets/Scripts/PlayerMovement.cs"
 "Assets/Scripts/Shooting.cs"
+"Assets/Scripts/WeaponSway.cs"
 -langversion:9.0
 
 /deterministic

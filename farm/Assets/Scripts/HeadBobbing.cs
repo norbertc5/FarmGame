@@ -12,36 +12,30 @@ public class HeadBobbing : MonoBehaviour
     float elapsedTime;
     float defaulyYPos;
     bool hasStartedReturning;
-    PlayerMovement playerMovemnet;
 
     private void Awake()
     {
         defaulyYPos = transform.localPosition.y;
-        playerMovemnet = FindObjectOfType<PlayerMovement>();
-    }
-
-    void Start()
-    {
     }
 
     void Update()
     {
-        if(PlayerMovement.isWalking || PlayerMovement.isRunning)
+        if(PlayerMovement.IsWalking || PlayerMovement.IsRunning)
         {
-            // set bobbingSpeed and bobbingAmplitude according to player speed
-            if (PlayerMovement.isWalking)
+            // set bobbingSpeed and swayAmplitude according to player swaySpeed
+            if (PlayerMovement.IsWalking)
             {
                 bobbingSpeed = defaultSpeed;
                 bobbingAmplitude = defaultAmplitude;
             }
-            else if (PlayerMovement.isRunning)
+            else if (PlayerMovement.IsRunning)
             {
                 bobbingSpeed = defaultSpeed * 2;
                 bobbingAmplitude = defaultAmplitude * 2;
             }
 
             // bobbing
-            if(!PlayerMovement.isCrouching)
+            if(!PlayerMovement.IsCrouching)
             {
                 elapsedTime += bobbingSpeed * Time.deltaTime;
                 transform.localPosition = new Vector3(transform.localPosition.x, defaulyYPos + Mathf.Sin(elapsedTime) * bobbingAmplitude);
@@ -57,7 +51,7 @@ public class HeadBobbing : MonoBehaviour
 
     IEnumerator ReturnCamera()
     {
-        // camera returns to started positon when player isn't moving
+        // camera returns to started positon when player isn'timeToStartSway moving
         Vector3 startPos = transform.localPosition;
         float t = 0;
 
