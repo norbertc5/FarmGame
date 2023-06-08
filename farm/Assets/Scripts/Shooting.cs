@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class Shooting : MonoBehaviour
 {
@@ -9,15 +10,18 @@ public class Shooting : MonoBehaviour
     [SerializeField] Animator armsAnim;
     [SerializeField] SpriteRenderer flashSprite;
     [SerializeField] TextMeshProUGUI ammoText;
+    [SerializeField] Weapon[] weapons;
+    [SerializeField] Animator armAnim;
     public static float recoil;
     int ammoAmount = 20;
     int ammoInMagazine = 8;
     int magazineCapacity = 8;
     bool canShoot = true;
+    int actualWeaponIndex;
 
     private void Start()
     {
-        UpdateAmmoText();    
+        UpdateAmmoText();
     }
 
     void Update()
@@ -51,6 +55,28 @@ public class Shooting : MonoBehaviour
         {
             StartCoroutine(Reload());
         }
+
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            if (actualWeaponIndex == 0)
+            {
+                actualWeaponIndex = 1;
+                //armsAnims[actualWeaponIndex].CrossFade("Rifle", 0);
+            }
+            else
+            {
+                actualWeaponIndex = 0;
+                //armsAnims[actualWeaponIndex].CrossFade("Pistol", 0);
+            }
+
+            foreach(Weapon weapon in weapons)
+            {
+                weapon.gameObject.SetActive(false);
+            }
+
+            weapons[actualWeaponIndex].gameObject.SetActive(true);
+            armsAnim.CrossFade("weaponChange", 0);
+        }
     }
 
     IEnumerator ShowFlash()
@@ -69,7 +95,12 @@ public class Shooting : MonoBehaviour
     {
         if(ammoAmount > 0)
         {
-            armsAnim.CrossFade("pistolReloading", 0);
+            switch(actualWeaponIndex)
+            {
+                case 0: armsAnim.CrossFade("pistolReloading", 0); break;
+                case 1: armsAnim.CrossFade("rifleReloading", 0);
+                    armAnim.CrossFade("rifleReloadingArm", 0); break;
+            }
             canShoot = false;
             yield return new WaitForSeconds(0.1f);  // to avoid glitches
             yield return new WaitForSeconds(armsAnim.GetCurrentAnimatorClipInfo(0)[0].clip.length - 0.5f);  // wait until anim ends
