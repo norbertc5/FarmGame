@@ -3,21 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
+
 public class Weapon : MonoBehaviour
 {
-    public GameObject model;
-    public Transform rightArmIKRef;
-    public Transform leftArmIKRef;
+    [Header("Ammo")]
+    [Space(6)]
+    public int magazineCapacity;
+    public int ammoAmount;
+    [HideInInspector] public int ammoInMagazine;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [Space(10)]
+    [Header("Fire")]
+    [Space(6)]
+    public bool isAuto;
+    [Tooltip("Fire rate for auto weapons.")]
+    public float fireRate = 0.1f;
 
-    // Update is called once per frame
-    void Update()
+    [Space(10)]
+    [Header("References")]
+    [Space(6)]
+    public Transform flashTrasform;
+    [Tooltip("Animator for second hand while reloading.")]
+    public Animator additinonalReloadingAnim;
+
+    private void Awake()
     {
-        
+        ammoInMagazine = magazineCapacity;
     }
 }

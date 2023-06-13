@@ -224,9 +224,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Set all variables needed to change player size with provide for weapon position.
-    /// </summary>
+    /// <summary> Set all variables needed to change player size with provide for weapon position.</summary>
     /// <param name="startPlayerScale"></param>
     /// <param name="endPlayerScale"></param>
     /// <param name="startWeaponPos"></param>
