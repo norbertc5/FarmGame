@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     const float CROUCH_SPEED = 5;
     public static bool IsWalking { get; private set; }
     public static bool IsRunning { get; private set; }
+    public static bool canMove;
 
     [Header("Jump")]
     [SerializeField] float jumpHeight = 10;
@@ -50,55 +51,64 @@ public class PlayerMovement : MonoBehaviour
     bool hasPlayedLandSoundPlayed;
     Coroutine landSoundCoroutine;
 
+    HeadBobbing headBobbing;
+    WeaponSway weaponSway;
+
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
         playerSource = GetComponent<AudioSource>();
         shooting = FindObjectOfType<Shooting>();
+        headBobbing = FindObjectOfType<HeadBobbing>();
+        weaponSway = FindObjectOfType<WeaponSway>();
     }
 
     private void Start()
     {
         StartCoroutine(PlayFootstepSounds());
         weaponDefaultPos = shooting.transform.localPosition;
+        ChangeMovementPossibility(true);
     }
 
     void Update()
     {
-        #region Movement
-
-        if (IsGrounded)
+        if(canMove)
         {
-            xInput = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-            yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
-        }
-        Vector3 move = transform.right * xInput + transform.forward * yInput;
+            #region Movement
 
-        // player do not speed up when key on horizontal and vertical axis are pressed at the same time
-        if (xInput != 0 && yInput != 0)
-          move = move.normalized * speed * Time.deltaTime;
+            if (IsGrounded)
+            {
+                xInput = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
+                yInput = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+            }
+            Vector3 move = transform.right * xInput + transform.forward * yInput;
+
+            // player do not speed up when key on horizontal and vertical axis are pressed at the same time
+            if (xInput != 0 && yInput != 0)
+                move = move.normalized * speed * Time.deltaTime;
 
             characterController.Move(move);
 
-        #endregion
+            #endregion
 
-        #region Jump
+            #region Jump
 
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching)
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
-            playerSource.PlayOneShot(jumpSound);
-            Crosshair.spread += Crosshair.JUMP_SPREAD;
+            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching)
+            {
+                velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
+                playerSource.PlayOneShot(jumpSound);
+                Crosshair.spread += Crosshair.JUMP_SPREAD;
+            }
+
+            // land sound plays when player jumps or falls
+            if (!IsGrounded)
+            {
+                hasPlayedLandSoundPlayed = false;
+                landSoundCoroutine = StartCoroutine(PlayLandSound());
+            }
+
+            #endregion
         }
-
-        // land sound plays when player jumps or falls
-        if(!IsGrounded)
-        {
-            hasPlayedLandSoundPlayed = false;
-            landSoundCoroutine = StartCoroutine(PlayLandSound());
-        }
-
-        #endregion
 
         #region Gravity
 
@@ -107,8 +117,6 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
 
         // when player is on the ground, velocity restarts
-        if (IsGrounded && velocity.y < 0)
-            velocity.y = -2;
         if (IsGrounded && velocity.y < 0)
             velocity.y = DEFAULT_Y_VELOCITY;
 
@@ -172,7 +180,7 @@ public class PlayerMovement : MonoBehaviour
         // if player is moving
         if(xInput != 0 || yInput != 0)
         {
-            // IsRunning can'timeToStartSway be true together with IsWalking
+            // IsRunning can't be true together with IsWalking
             // player can walk OR sprint
             if (!IsRunning && !IsCrouching)
                 IsWalking = true;
@@ -237,5 +245,14 @@ public class PlayerMovement : MonoBehaviour
         weaponEndPosition = endWeaponPos;
         elapsedTime = 0;
         isResizing = true;
+    }
+
+    public static void ChangeMovementPossibility(bool value)
+    {
+        canMove = value;
+        // walk effects must be turned off when movement is
+        FindObjectOfType<HeadBobbing>().enabled = value;
+        FindObjectOfType<WeaponSway>().enabled = value;
+        FindObjectOfType<MouseLook>().enabled = value;
     }
 }

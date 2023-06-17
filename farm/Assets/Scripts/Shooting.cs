@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
 
 public class Shooting : MonoBehaviour
 {
@@ -12,18 +10,25 @@ public class Shooting : MonoBehaviour
     [SerializeField] TextMeshProUGUI ammoText;
     [SerializeField] Weapon[] weapons;
     [SerializeField] Animation weaponChangeAnim;
+    [SerializeField] GameObject weaponWheel;
+    [SerializeField] TextMeshProUGUI weaponNameText;
     public static float recoil;
     Weapon actualWeapon;
     bool canShoot = true;
-    int actualWeaponIndex;
     bool autoFireDelay = true;
     Coroutine reloadCoroutine;
     bool isReloading;
+    Crosshair crosshair;
+    PoolManager poolManager;
+    int actualBulletHoleIndex;
 
     private void Start()
     {
         actualWeapon = weapons[0];
         UpdateAmmoText();
+        weaponNameText.text = actualWeapon.weaponName;
+        crosshair = FindObjectOfType<Crosshair>();
+        poolManager = FindObjectOfType<PoolManager>();
     }
 
     void Update()
@@ -38,8 +43,8 @@ public class Shooting : MonoBehaviour
         Ray ray;
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
-            (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay))
+        if (!actualWeapon.isMelee && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
+            (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay)))
         {
             if(canShoot && actualWeapon.ammoInMagazine > 0)
             {
@@ -51,6 +56,14 @@ public class Shooting : MonoBehaviour
                 actualWeapon.ammoInMagazine--;
                 UpdateAmmoText();
                 CheckIfMagazineEmpty();
+
+                #region Bullet holes
+
+                GameObject bulletHole = poolManager.GetObjectFromPool(1);
+                bulletHole.transform.position = hit.point;
+                bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                #endregion
 
                 if (!PlayerMovement.IsCrouching)
                     recoil += 2;
@@ -73,25 +86,32 @@ public class Shooting : MonoBehaviour
 
         #region Weapon Change
 
+        // changing with keyboard
         if (Input.GetKeyDown(KeyCode.Alpha1))
+            ChangeWeapon(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            ChangeWeapon(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            ChangeWeapon(2);
+
+        // changing with weapon wheel
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (actualWeaponIndex == 0)
-                actualWeaponIndex = 1;
-            else
-                actualWeaponIndex = 0;
+            weaponWheel.SetActive(true);
+            PlayerMovement.ChangeMovementPossibility(false);
+            canShoot = false;
+            Cursor.lockState = CursorLockMode.None;
+            crosshair.gameObject.SetActive(false);
+        }
+        else if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            weaponWheel.SetActive(false);
+            PlayerMovement.ChangeMovementPossibility(true);
+            Cursor.lockState = CursorLockMode.Locked;
+            crosshair.gameObject.SetActive(true);
 
-            armsAnim.CrossFade("weaponChange", 0);
-            actualWeapon = weapons[actualWeaponIndex];
-            flashSprite.transform.localPosition = actualWeapon.flashTrasform.localPosition;
-            StartCoroutine(WeaponChange());
-
-            // when reloading is stopped by weapon changing
-            if(isReloading && reloadCoroutine != null)
-            {
-                StopCoroutine(reloadCoroutine);
+            if (!isReloading)
                 canShoot = true;
-                isReloading = false;
-            }
         }
 
         #endregion
@@ -106,48 +126,50 @@ public class Shooting : MonoBehaviour
 
     void UpdateAmmoText()
     {
+        if (actualWeapon.isMelee)
+            return;
+
         ammoText.text = "Ammo: " + actualWeapon.ammoInMagazine + "/" + actualWeapon.ammoAmount;
     }
 
     IEnumerator Reload()
     {
-        if(actualWeapon.ammoAmount > 0)
-        {
-            switch(actualWeaponIndex)
-            {
-                case 0: armsAnim.CrossFade("pistolReloading", 0); break;
-                case 1: armsAnim.CrossFade("rifleReloading", 0); break;
-            }
+        // break if no ammo
+        if(actualWeapon.ammoAmount <= 0)
+            yield break;
 
-            // play animation for second hand while reloading
-            if(actualWeapon.additinonalReloadingAnim != null)
-                actualWeapon.additinonalReloadingAnim.CrossFade("Reloading", 0);
+        armsAnim.CrossFade(actualWeapon.weaponName + "Reloading", 0);
+        // play animation for second hand while reloading
+        if (actualWeapon.additinonalReloadingAnim != null)
+            actualWeapon.additinonalReloadingAnim.CrossFade("Reloading", 0);
 
-            canShoot = false;
-            isReloading = true;
-            yield return new WaitForSeconds(0.1f);  // to avoid glitches
-            yield return new WaitForSeconds(armsAnim.GetCurrentAnimatorClipInfo(0)[0].clip.length - 0.5f);  // wait until anim ends
+        canShoot = false;
+        isReloading = true;
+        yield return new WaitForSeconds(0.1f);  // to avoid glitches
+        yield return new WaitForSeconds(armsAnim.GetCurrentAnimatorClipInfo(0)[0].clip.length - 0.5f);  // wait until anim ends
+
+        // can't shoot when wheel is opened
+        if(!weaponWheel.activeSelf)
             canShoot = true;
 
-            // count how many ammo add to magazine
-            int ammoToAdd = 0;
-            for (int i = actualWeapon.ammoInMagazine; i < actualWeapon.magazineCapacity; i++)
+        // count how many ammo add to magazine
+        int ammoToAdd = 0;
+        for (int i = actualWeapon.ammoInMagazine; i < actualWeapon.magazineCapacity; i++)
+        {
+            if (actualWeapon.ammoAmount > 0)
             {
-                if (actualWeapon.ammoAmount > 0)
-                {
-                    ammoToAdd++;
-                    actualWeapon.ammoAmount--;
-                }
+                ammoToAdd++;
+                actualWeapon.ammoAmount--;
             }
-
-            actualWeapon.ammoInMagazine += ammoToAdd;
-            isReloading = false;
-            UpdateAmmoText();
         }
+
+        actualWeapon.ammoInMagazine += ammoToAdd;
+        isReloading = false;
+        UpdateAmmoText();
     }
 
-    /// <summary> Change weapon when it isn't visible in animation.</summary>
-    IEnumerator WeaponChange()
+    /// <summary> Change weapon when it isn't visible in reloading animation.</summary>
+    IEnumerator WeaponModelChange()
     {
         yield return new WaitForSeconds(0.5f);
         foreach (Weapon weaponObj in weapons)
@@ -168,10 +190,36 @@ public class Shooting : MonoBehaviour
         yield return new WaitForSeconds(actualWeapon.fireRate);
     }
 
+    /// <summary> Start reloading when no ammo in magazine.</summary>
     void CheckIfMagazineEmpty()
     {
-        // start reloading when no ammo in magazine
         if (actualWeapon.ammoInMagazine <= 0)
             reloadCoroutine = StartCoroutine(Reload());
+    }
+
+    /// <summary> Change weapon which is player using now.</summary>
+    /// <param name="newWeapon"></param>
+    public void ChangeWeapon(int newWeapon)
+    {
+        if (weapons[newWeapon] == actualWeapon)
+            return;
+
+        armsAnim.CrossFade("weaponChange", 0);
+        actualWeapon = weapons[newWeapon];
+        StartCoroutine(WeaponModelChange());
+        weaponNameText.text = actualWeapon.weaponName;
+
+        if (!actualWeapon.isMelee)
+            flashSprite.transform.localPosition = actualWeapon.flashTrasform.localPosition;
+        else
+            ammoText.text = "";
+
+        // when reloading is stopped by weapon changing
+        if (isReloading && reloadCoroutine != null)
+        {
+            StopCoroutine(reloadCoroutine);
+            canShoot = true;
+            isReloading = false;
+        }
     }
 }
