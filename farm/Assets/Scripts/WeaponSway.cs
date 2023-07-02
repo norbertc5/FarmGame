@@ -22,7 +22,7 @@ public class WeaponSway : MonoBehaviour
     {
         transform.localPosition = new Vector3(defaulyXPos + Mathf.Sin(elapsedTime) * swayAmplitude, transform.localPosition.y);
 
-        // swaying is possible only when player is moving
+        // swaying is possible only when Player is moving
         if (PlayerMovement.IsWalking || PlayerMovement.IsRunning)
         {
             timeToStartSway += Time.deltaTime;

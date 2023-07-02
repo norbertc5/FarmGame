@@ -22,7 +22,7 @@ public class HeadBobbing : MonoBehaviour
     {
         if(PlayerMovement.IsWalking || PlayerMovement.IsRunning)
         {
-            // set bobbingSpeed and swayAmplitude according to player swaySpeed
+            // set bobbingSpeed and swayAmplitude according to Player swaySpeed
             if (PlayerMovement.IsWalking)
             {
                 bobbingSpeed = defaultSpeed;
@@ -51,7 +51,7 @@ public class HeadBobbing : MonoBehaviour
 
     IEnumerator ReturnCamera()
     {
-        // camera returns to started positon when player isn'timeToStartSway moving
+        // camera returns to started positon when Player isn'timeToStartSway moving
         Vector3 startPos = transform.localPosition;
         float t = 0;
 

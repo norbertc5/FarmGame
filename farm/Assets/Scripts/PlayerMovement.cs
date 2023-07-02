@@ -51,16 +51,11 @@ public class PlayerMovement : MonoBehaviour
     bool hasPlayedLandSoundPlayed;
     Coroutine landSoundCoroutine;
 
-    HeadBobbing headBobbing;
-    WeaponSway weaponSway;
-
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
         playerSource = GetComponent<AudioSource>();
         shooting = FindObjectOfType<Shooting>();
-        headBobbing = FindObjectOfType<HeadBobbing>();
-        weaponSway = FindObjectOfType<WeaponSway>();
     }
 
     private void Start()
@@ -83,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
             }
             Vector3 move = transform.right * xInput + transform.forward * yInput;
 
-            // player do not speed up when key on horizontal and vertical axis are pressed at the same time
+            // Player do not speed up when key on horizontal and vertical axis are pressed at the same time
             if (xInput != 0 && yInput != 0)
                 move = move.normalized * speed * Time.deltaTime;
 
@@ -93,14 +88,14 @@ public class PlayerMovement : MonoBehaviour
 
             #region Jump
 
-            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching)
+            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching && !isUnderCeiling)
             {
                 velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
                 playerSource.PlayOneShot(jumpSound);
                 Crosshair.spread += Crosshair.JUMP_SPREAD;
             }
 
-            // land sound plays when player jumps or falls
+            // land sound plays when Player jumps or falls
             if (!IsGrounded)
             {
                 hasPlayedLandSoundPlayed = false;
@@ -116,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * mass * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
 
-        // when player is on the ground, velocity restarts
+        // when Player is on the ground, velocity restarts
         if (IsGrounded && velocity.y < 0)
             velocity.y = DEFAULT_Y_VELOCITY;
 
@@ -150,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
             IsWalking = false;
             Crosshair.baseSpread = Crosshair.CROUCH_SPREAD;
         }
-        // point, wehen player released crouch button or when stop being under sth where he was crouching
+        // point, wehen Player released crouch button or when stop being under sth where he was crouching
         if(!Input.GetKey(KeyCode.LeftControl) && !isUnderCeiling && IsCrouching)
         {
             ResizePlayer(transform.localScale, Vector3.one, shooting.transform.localPosition, weaponDefaultPos);
@@ -158,17 +153,17 @@ public class PlayerMovement : MonoBehaviour
             IsCrouching = false;
             Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
-        // time after stop crouching, when player has time to resize
+        // time after stop crouching, when Player has time to resize
         if(isResizing)
         {
             elapsedTime += 2 * Time.deltaTime;
             transform.localScale = Vector3.Lerp(startScale, endScale, elapsedTime);
             shooting.transform.localPosition = Vector3.Lerp(weaponStartPosition, weaponEndPosition, elapsedTime);
 
-            // player smoothly stand up from crouching
+            // Player smoothly stand up from crouching
             if (!IsCrouching)
                 velocity.y = 1;
-            else // player can'timeToStartSway fly when spam crouch button
+            else // Player can'timeToStartSway fly when spam crouch button
                 velocity.y = DEFAULT_Y_VELOCITY;
 
             if (transform.localScale == endScale)
@@ -177,11 +172,11 @@ public class PlayerMovement : MonoBehaviour
 
         #endregion
 
-        // if player is moving
+        // if Player is moving
         if(xInput != 0 || yInput != 0)
         {
             // IsRunning can't be true together with IsWalking
-            // player can walk OR sprint
+            // Player can walk OR sprint
             if (!IsRunning && !IsCrouching)
                 IsWalking = true;
         }
@@ -232,7 +227,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    /// <summary> Set all variables needed to change player size with provide for weapon position.</summary>
+    /// <summary> Set all variables needed to change Player size with provide for weapon position.</summary>
     /// <param name="startPlayerScale"></param>
     /// <param name="endPlayerScale"></param>
     /// <param name="startWeaponPos"></param>

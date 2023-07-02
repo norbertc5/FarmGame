@@ -8,6 +8,7 @@ public class Weapon : MonoBehaviour
 {
     [Header("General")]
     public string weaponName;
+    [Range(1, 10)] public int damage;
 
     [Header("Ammo")]
     public int magazineCapacity;
@@ -19,6 +20,9 @@ public class Weapon : MonoBehaviour
     public bool isMelee;
     [Tooltip("Fire rate for auto weapons.")]
     public float fireRate = 0.1f;
+
+    [Header("Sounds")]
+    public AudioClip shootSound;
 
     [Header("References")]
     public Transform flashTrasform;

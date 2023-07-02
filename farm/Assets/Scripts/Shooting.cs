@@ -1,10 +1,22 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Shooting : MonoBehaviour
 {
+    [Header("General")]
     [SerializeField] float crosshairSpreadWhenShoot = 20;
+    public static float recoil;
+    Weapon actualWeapon;
+    bool canShoot = true;
+    bool autoFireDelay = true;
+    Coroutine reloadCoroutine;
+    bool isReloading;
+    bool[] unlockedWeapons;
+
+    [Header("References")]
     [SerializeField] Animator armsAnim;
     [SerializeField] SpriteRenderer flashSprite;
     [SerializeField] TextMeshProUGUI ammoText;
@@ -12,15 +24,11 @@ public class Shooting : MonoBehaviour
     [SerializeField] Animation weaponChangeAnim;
     [SerializeField] GameObject weaponWheel;
     [SerializeField] TextMeshProUGUI weaponNameText;
-    public static float recoil;
-    Weapon actualWeapon;
-    bool canShoot = true;
-    bool autoFireDelay = true;
-    Coroutine reloadCoroutine;
-    bool isReloading;
+    [SerializeField] Button[] buttonsInWheel;
     Crosshair crosshair;
     PoolManager poolManager;
-    int actualBulletHoleIndex;
+    GameManager gameManager;
+    AudioSource source;
 
     private void Start()
     {
@@ -29,11 +37,15 @@ public class Shooting : MonoBehaviour
         weaponNameText.text = actualWeapon.weaponName;
         crosshair = FindObjectOfType<Crosshair>();
         poolManager = FindObjectOfType<PoolManager>();
+        gameManager = FindObjectOfType<GameManager>();
+        source = GetComponent<AudioSource>();
+        unlockedWeapons = new bool[weapons.Length];
+        unlockedWeapons[0] = true;
     }
 
     void Update()
     {
-        // scale of weapons is independent of player scale
+        // scale of weapons is independent of Player scale
         transform.localScale = new Vector3(1 / transform.parent.localScale.x,
         1 / transform.parent.localScale.y, 1 / transform.parent.localScale.z);
 
@@ -49,19 +61,47 @@ public class Shooting : MonoBehaviour
             if(canShoot && actualWeapon.ammoInMagazine > 0)
             {
                 Crosshair.spread += crosshairSpreadWhenShoot;
-                Physics.Raycast(ray, out hit);
+                Physics.Raycast(ray, out hit, 100);
                 armsAnim.CrossFade("recoilAnim", 0);
-                Debug.Log(hit.collider.name);
                 StartCoroutine(ShowFlash());
                 actualWeapon.ammoInMagazine--;
                 UpdateAmmoText();
                 CheckIfMagazineEmpty();
+                source.PlayOneShot(actualWeapon.shootSound);
 
                 #region Bullet holes
 
-                GameObject bulletHole = poolManager.GetObjectFromPool(1);
-                bulletHole.transform.position = hit.point;
-                bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                // holes don't appear on enemies
+                if(!hit.transform.CompareTag("Enemy"))
+                {
+                    GameObject bulletHole = poolManager.GetObjectFromPool(0);
+                    bulletHole.transform.position = hit.point;
+                    bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                }
+
+                #endregion
+
+                #region Giving damage to enemy
+
+                if (hit.collider.transform.CompareTag("Enemy"))
+                {
+                    Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+                    enemy.enabled = false;
+                    switch (hit.collider.gameObject.GetComponent<DamagePointer>().bodyPart)
+                    {
+                        case DamagePointer.BodyParts.Limb: enemy.GetDamage(2 * actualWeapon.damage); break;
+                        case DamagePointer.BodyParts.Body: enemy.GetDamage(5 * actualWeapon.damage); break;
+                        case DamagePointer.BodyParts.Head: enemy.GetDamage(10 * actualWeapon.damage); break;
+                    }
+
+                    // pushing ragdoll according to ray direction
+                    if (enemy.health <= 0)
+                    {
+                        Vector3 force = ray.direction;
+                        force.Normalize();
+                        enemy.AddForceToRagdoll(force * 10);
+                    }
+                }
 
                 #endregion
 
@@ -117,6 +157,7 @@ public class Shooting : MonoBehaviour
         #endregion
     }
 
+    /// <summary> Show flash on end of the weapon's barrel for short time. </summary>
     IEnumerator ShowFlash()
     {
         flashSprite.gameObject.SetActive(true);
@@ -132,11 +173,16 @@ public class Shooting : MonoBehaviour
         ammoText.text = "Ammo: " + actualWeapon.ammoInMagazine + "/" + actualWeapon.ammoAmount;
     }
 
+    /// <summary> Reload actual weapon. </summary>
     IEnumerator Reload()
     {
         // break if no ammo
         if(actualWeapon.ammoAmount <= 0)
             yield break;
+
+        // when ammoInMagazine is equals to 0 and Player changed weapon, it waits until weaponChange anim ends
+        if (armsAnim.GetCurrentAnimatorClipInfo(0).Length > 0 && armsAnim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "weaponChange")
+            yield return new WaitForSeconds(0.5f);
 
         armsAnim.CrossFade(actualWeapon.weaponName + "Reloading", 0);
         // play animation for second hand while reloading
@@ -197,11 +243,11 @@ public class Shooting : MonoBehaviour
             reloadCoroutine = StartCoroutine(Reload());
     }
 
-    /// <summary> Change weapon which is player using now.</summary>
+    /// <summary> Change weapon which is Player using now.</summary>
     /// <param name="newWeapon"></param>
     public void ChangeWeapon(int newWeapon)
     {
-        if (weapons[newWeapon] == actualWeapon)
+        if (weapons[newWeapon] == actualWeapon || unlockedWeapons[newWeapon] == false)
             return;
 
         armsAnim.CrossFade("weaponChange", 0);
@@ -221,5 +267,27 @@ public class Shooting : MonoBehaviour
             canShoot = true;
             isReloading = false;
         }
+    }
+
+
+    /// <summary> Give player access to weapon or (if player has already access) give him ammo. </summary>
+    /// <param name="weaponIndex"></param>
+    public void TakeWeapon(int weaponIndex)
+    {
+        StartCoroutine(gameManager.ShowInfoText("New weapon"));
+
+        // if Player has weapon, he gets ammo
+        if (unlockedWeapons[weaponIndex] == true)
+        {
+            weapons[weaponIndex].ammoAmount += weapons[weaponIndex].magazineCapacity;
+            UpdateAmmoText();
+            return;
+        }
+
+        // when Player doesn't have weapon, it unlocks
+        unlockedWeapons[weaponIndex] = true;
+        buttonsInWheel[weaponIndex].transform.GetChild(0).GetComponent<Image>().enabled = true;
+        buttonsInWheel[weaponIndex].GetComponentInChildren<TextMeshProUGUI>().enabled = true;
+        buttonsInWheel[weaponIndex].interactable = true;
     }
 }

@@ -121,6 +121,7 @@
 -define:TIMELINE_FRAMEACCURATE
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
+-r:"Assets/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll"
 -r:"D:/unity projekty/FarmGame/farm/Library/PackageCache/com.unity.burst@1.6.6/Unity.Burst.CodeGen/Unity.Burst.Cecil.dll"
 -r:"D:/unity projekty/FarmGame/farm/Library/PackageCache/com.unity.burst@1.6.6/Unity.Burst.CodeGen/Unity.Burst.Cecil.Mdb.dll"
 -r:"D:/unity projekty/FarmGame/farm/Library/PackageCache/com.unity.burst@1.6.6/Unity.Burst.CodeGen/Unity.Burst.Cecil.Pdb.dll"
