@@ -23,6 +23,7 @@ public class PoolManager : MonoBehaviour
             {
                 GameObject newObject = Instantiate(pool.objectPrefab);
                 objectsList.Add(newObject);
+                newObject.transform.parent = transform;
             }
             // convert list to array
             GameObject[] array = objectsList.ToArray();

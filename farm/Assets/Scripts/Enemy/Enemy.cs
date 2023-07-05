@@ -1,6 +1,7 @@
 using Pathfinding;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : MonoBehaviour
@@ -27,15 +28,52 @@ public class Enemy : MonoBehaviour
     [SerializeField] AudioClip deathSound;
     AudioSource source;
 
+    [Header("Weapon - data")]
+    [SerializeField] WeaponTypes weaponType;
+    [SerializeField] GameObject[] weaponsModels;
+    [SerializeField] float[] delaysForShooting;
+    [SerializeField] AudioClip[] weaponsSounds;
+    enum WeaponTypes { Pisol, Rifle }
+    int weaponIndex = 0;
+
+    [Header("Weapon - rigging")]
+    [SerializeField] RigBuilder rigBuilder;
+    [SerializeField] TwoBoneIKConstraint rightArmIK;
+    [SerializeField] TwoBoneIKConstraint leftArmIK;
+    [Space(2)]
+    [SerializeField] Transform[] rightArmIKTargets;
+    [SerializeField] Transform[] rightArmIKHints;
+    [Space(2)]
+    [SerializeField] Transform[] leftArmIKTargets;
+    [SerializeField] Transform[] leftArmIKHints;
+
     void Awake()
     {
         ragdollElements = GetComponentsInChildren<DamagePointer>();
         animator = GetComponent<Animator>();
         poolManager = FindObjectOfType<PoolManager>();
         pathfinding = GetComponent<AIPath>();
+        GetComponent<AIDestinationSetter>().target = GameObject.FindGameObjectWithTag("Player").transform;
         player = GetComponent<AIDestinationSetter>().target;
         source = GetComponent<AudioSource>();
         StartCoroutine(CheckDistance());
+        distanceChecker.parent = null;
+
+        #region Setting weapon in hands
+
+        switch(weaponType)
+        {
+            case WeaponTypes.Pisol: weaponIndex = 0; break;
+            case WeaponTypes.Rifle: weaponIndex = 1; break;
+        }
+        weaponsModels[weaponIndex].SetActive(true);
+        rightArmIK.data.target = rightArmIKTargets[weaponIndex];
+        rightArmIK.data.hint = rightArmIKHints[weaponIndex];
+        leftArmIK.data.target = leftArmIKTargets[weaponIndex];
+        leftArmIK.data.hint = leftArmIKHints[weaponIndex];
+        rigBuilder.Build();
+
+        #endregion
     }
 
     private void Update()
@@ -70,9 +108,8 @@ public class Enemy : MonoBehaviour
         {
             if(!isDeath)
             {
-                GameObject pistolObject = poolManager.GetObjectFromPool(2);
-                pistolObject.transform.position = skeletonObject.transform.position;
-                weaponModel.SetActive(false);
+                GameObject weaponObject = poolManager.GetObjectFromPool(2 + weaponIndex);
+                weaponObject.transform.position = skeletonObject.transform.position;  // drop weapon after death
                 SetRagdollActive(false);
                 animator.enabled = false;
                 pathfinding.enabled = false;
@@ -82,14 +119,16 @@ public class Enemy : MonoBehaviour
 
                 if (shootingCoroutine != null)
                     StopCoroutine(shootingCoroutine);
+
+                // turn off weapon models
+                foreach(GameObject weaponModel in weaponsModels)
+                    weaponModel.SetActive(false);
             }
             isDeath = true;
         }
     }
 
-    /// <summary>
-    /// Make ragdoll kinematic or vice versa.
-    /// </summary>
+    /// <summary> Make ragdoll kinematic or vice versa. </summary>
     void SetRagdollActive(bool value)
     {
         foreach (DamagePointer dp in ragdollElements)
@@ -138,14 +177,23 @@ public class Enemy : MonoBehaviour
     {
         while(true)
         {
-            yield return new WaitForSeconds(1);
-            RaycastHit hit;
-            float recoil = Random.Range(-1.3f, 1.3f);
-            Physics.Raycast(shootPoint.position, (player.position + Vector3.up * recoil + Vector3.right * recoil - shootPoint.position), out hit);
+            yield return new WaitForSeconds(Random.Range(1, 3));
+            int howManyShoots = Random.Range(1, 10);
 
-            if(hit.transform.CompareTag("Player"))
+            for (int i = 0; i < howManyShoots; i++)
             {
-                Debug.Log("trafiony");
+                RaycastHit hit;
+                float recoil = Random.Range(-1.3f, 1.3f);
+                Physics.Raycast(shootPoint.position,
+                    (player.position + Vector3.up * recoil + Vector3.right * recoil - shootPoint.position), out hit);
+                source.PlayOneShot(weaponsSounds[weaponIndex]);
+
+                if (hit.transform.CompareTag("Player"))
+                {
+                    Debug.Log("trafiony");
+                }
+
+                yield return new WaitForSeconds(delaysForShooting[weaponIndex]);
             }
         }
     }
@@ -165,14 +213,16 @@ public class Enemy : MonoBehaviour
 
         if (canSeePlayer && hit.transform.CompareTag("Player"))
         {
-            yield return new WaitForSeconds(1);
             pathfinding.enabled = false;
-            shootingCoroutine = StartCoroutine(Shooting());
+
+            if(shootingCoroutine == null)
+                shootingCoroutine = StartCoroutine(Shooting());
         }
         else
         {
             pathfinding.enabled = true;
             StopCoroutine(shootingCoroutine);
+            shootingCoroutine = null;
         }
         isFighting = canSeePlayer;
     }

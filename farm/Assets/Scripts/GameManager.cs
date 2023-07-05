@@ -6,17 +6,11 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public TextMeshProUGUI infoText;
+    public static AudioSource playerSource;  // playerSource is source to play all sounds related to player
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        playerSource = GameObject.Find("PlayerSoundSource").GetComponent<AudioSource>();
     }
 
     public IEnumerator ShowInfoText(string text)

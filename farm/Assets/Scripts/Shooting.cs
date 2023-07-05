@@ -28,7 +28,11 @@ public class Shooting : MonoBehaviour
     Crosshair crosshair;
     PoolManager poolManager;
     GameManager gameManager;
+
+    [Header("Sounds")]
     AudioSource source;
+    [SerializeField] AudioClip emptyGunSound;
+    [SerializeField] AudioClip pickUpSound;
 
     private void Start()
     {
@@ -111,6 +115,10 @@ public class Shooting : MonoBehaviour
                 if (actualWeapon.isAuto)
                     StartCoroutine(AutoFire());
             }
+
+            // playing emptyGunSound
+            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf)
+                GameManager.playerSource.PlayOneShot(emptyGunSound);
         }
 
         #endregion
@@ -275,14 +283,17 @@ public class Shooting : MonoBehaviour
     public void TakeWeapon(int weaponIndex)
     {
         StartCoroutine(gameManager.ShowInfoText("New weapon"));
+        GameManager.playerSource.PlayOneShot(pickUpSound);
 
         // if Player has weapon, he gets ammo
         if (unlockedWeapons[weaponIndex] == true)
         {
             weapons[weaponIndex].ammoAmount += weapons[weaponIndex].magazineCapacity;
             UpdateAmmoText();
+            CheckIfMagazineEmpty();
             return;
         }
+
 
         // when Player doesn't have weapon, it unlocks
         unlockedWeapons[weaponIndex] = true;
