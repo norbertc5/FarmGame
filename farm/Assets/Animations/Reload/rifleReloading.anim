@@ -1188,16 +1188,16 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.7
-    functionName: PlayMagOutSound
+    functionName: PlaySound
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 8300000, guid: e66ea9ce18312eb4289914c389d13545, type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1.9916667
-    functionName: PlayMagInSound
+    functionName: PlaySound
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 8300000, guid: 89800c0eb4635ca4a8938eede69db634, type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

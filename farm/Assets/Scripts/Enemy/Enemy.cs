@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using static UnityEngine.GraphicsBuffer;
 
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(AIPath))]
+[RequireComponent(typeof(Seeker))]
+[RequireComponent(typeof(AIDestinationSetter))]
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(AudioSource))]
 public class Enemy : MonoBehaviour
 {
     [Header("General")]
@@ -27,13 +33,15 @@ public class Enemy : MonoBehaviour
     [SerializeField] AudioClip damageSound;
     [SerializeField] AudioClip deathSound;
     AudioSource source;
+    float timeToPlayPainSound;
 
     [Header("Weapon - data")]
     [SerializeField] WeaponTypes weaponType;
     [SerializeField] GameObject[] weaponsModels;
     [SerializeField] float[] delaysForShooting;
     [SerializeField] AudioClip[] weaponsSounds;
-    enum WeaponTypes { Pisol, Rifle }
+    [SerializeField] int[] raysAmount;
+    enum WeaponTypes { Pisol, Rifle, Shotgun }
     int weaponIndex = 0;
 
     [Header("Weapon - rigging")]
@@ -65,6 +73,7 @@ public class Enemy : MonoBehaviour
         {
             case WeaponTypes.Pisol: weaponIndex = 0; break;
             case WeaponTypes.Rifle: weaponIndex = 1; break;
+            case WeaponTypes.Shotgun: weaponIndex = 2; break;
         }
         weaponsModels[weaponIndex].SetActive(true);
         rightArmIK.data.target = rightArmIKTargets[weaponIndex];
@@ -85,16 +94,30 @@ public class Enemy : MonoBehaviour
             // don't rotate in x axis because it looks weird
             transform.eulerAngles = new Vector3(0, transform.eulerAngles.y);
         }
+
+        if(timeToPlayPainSound >= 0)
+            timeToPlayPainSound -= Time.deltaTime;
     }
 
     /// <summary> Give damage to enemy. </summary>
     /// <param name="value"></param>
     public void GetDamage(int value)
     {
+        GetComponent<Enemy>().enabled = true;  // idk why but it turns off when enemy gets damage
         health -= value;
 
-        if(health > 0)
-            source.PlayOneShot(damageSound);        
+        #region Playing pain sounds
+
+        if (timeToPlayPainSound < 0)
+        {
+            if (health > 0)
+                source.PlayOneShot(damageSound);
+            else if(!isDeath)
+                source.PlayOneShot(deathSound);
+            timeToPlayPainSound = 0.1f;
+        }
+
+        #endregion
 
         #region Blood stains
 
@@ -103,6 +126,8 @@ public class Enemy : MonoBehaviour
         bloodObject.transform.eulerAngles = new Vector3(90, 0, Random.Range(0, 360));
 
         #endregion
+
+        #region Death
 
         if (health <= 0)
         {
@@ -115,7 +140,6 @@ public class Enemy : MonoBehaviour
                 pathfinding.enabled = false;
                 GetComponent<CharacterController>().enabled = false;
                 SetRagdollActive(true);
-                source.PlayOneShot(deathSound);
 
                 if (shootingCoroutine != null)
                     StopCoroutine(shootingCoroutine);
@@ -126,6 +150,8 @@ public class Enemy : MonoBehaviour
             }
             isDeath = true;
         }
+
+        #endregion
     }
 
     /// <summary> Make ragdoll kinematic or vice versa. </summary>
@@ -179,20 +205,23 @@ public class Enemy : MonoBehaviour
         {
             yield return new WaitForSeconds(Random.Range(1, 3));
             int howManyShoots = Random.Range(1, 10);
-
+            
+            // it works similar to shooting by player, in Shooting.cs script it's better described
             for (int i = 0; i < howManyShoots; i++)
             {
-                RaycastHit hit;
-                float recoil = Random.Range(-1.3f, 1.3f);
-                Physics.Raycast(shootPoint.position,
-                    (player.position + Vector3.up * recoil + Vector3.right * recoil - shootPoint.position), out hit);
-                source.PlayOneShot(weaponsSounds[weaponIndex]);
-
-                if (hit.transform.CompareTag("Player"))
+                for (int j = 0; j <= raysAmount[weaponIndex]; j++)
                 {
-                    Debug.Log("trafiony");
-                }
+                    RaycastHit hit;
+                    float recoil = Random.Range(-1.3f, 1.3f);
+                    Physics.Raycast(shootPoint.position,
+                        (player.position + Vector3.up * recoil + Vector3.right * recoil - shootPoint.position), out hit);
 
+                    if (hit.transform.CompareTag("Player"))
+                    {
+                        Debug.Log("trafiony");
+                    }
+                }
+                source.PlayOneShot(weaponsSounds[weaponIndex]);
                 yield return new WaitForSeconds(delaysForShooting[weaponIndex]);
             }
         }
@@ -221,8 +250,13 @@ public class Enemy : MonoBehaviour
         else
         {
             pathfinding.enabled = true;
-            StopCoroutine(shootingCoroutine);
-            shootingCoroutine = null;
+
+            try
+            {
+                StopCoroutine(shootingCoroutine);
+                shootingCoroutine = null;
+            }
+            catch { }
         }
         isFighting = canSeePlayer;
     }

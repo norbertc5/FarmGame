@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class Shooting : MonoBehaviour
 {
     [Header("General")]
-    [SerializeField] float crosshairSpreadWhenShoot = 20;
+    //[SerializeField] float crosshairSpreadWhenShoot = 20;
     public static float recoil;
     Weapon actualWeapon;
     bool canShoot = true;
@@ -15,6 +15,7 @@ public class Shooting : MonoBehaviour
     Coroutine reloadCoroutine;
     bool isReloading;
     bool[] unlockedWeapons;
+    float fireRateTime;
 
     [Header("References")]
     [SerializeField] Animator armsAnim;
@@ -53,72 +54,87 @@ public class Shooting : MonoBehaviour
         transform.localScale = new Vector3(1 / transform.parent.localScale.x,
         1 / transform.parent.localScale.y, 1 / transform.parent.localScale.z);
 
+        if (fireRateTime >= 0)
+            fireRateTime -= Time.deltaTime;
+
         #region Raycasting
 
-        RaycastHit hit;
-        Ray ray;
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (!actualWeapon.isMelee && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
+        if (!actualWeapon.isMelee && fireRateTime <= 0 && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
             (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay)))
         {
-            if(canShoot && actualWeapon.ammoInMagazine > 0)
+            // playing emptyGunSound
+            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf)
+                GameManager.playerSource.PlayOneShot(emptyGunSound);
+
+            if (canShoot && actualWeapon.ammoInMagazine > 0)
             {
-                Crosshair.spread += crosshairSpreadWhenShoot;
-                Physics.Raycast(ray, out hit, 100);
+                Ray ray;
+                RaycastHit hit;
+
+                // create suitable amount of rays
+                for (int i = 0; i < actualWeapon.raysAmount; i++)
+                {
+                    // make dispersion according to crosshair spread
+                    Vector2 randomTarget = UnityEngine.Random.insideUnitCircle * Crosshair.spread / 5;
+                    randomTarget *= actualWeapon.additionalDispersionSize;  // additional dispersion for specific weapons
+                    ray = Camera.main.ScreenPointToRay(Input.mousePosition + new Vector3(randomTarget.x, randomTarget.y));
+                    Physics.Raycast(ray, out hit, 100);
+
+                    #region Bullet holes
+
+                    // holes don't appear on enemies
+                    if (!hit.transform.CompareTag("Enemy"))
+                    {
+                        GameObject bulletHole = poolManager.GetObjectFromPool(0);
+                        bulletHole.transform.position = hit.point;
+                        bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                    }
+
+                    #endregion
+
+                    #region Giving damage to enemy
+
+                    if (hit.collider.transform.CompareTag("Enemy"))
+                    {
+                        Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+                        enemy.enabled = false;
+                        switch (hit.collider.gameObject.GetComponent<DamagePointer>().bodyPart)
+                        {
+                            case DamagePointer.BodyParts.Limb: enemy.GetDamage(2 * actualWeapon.damage); break;
+                            case DamagePointer.BodyParts.Body: enemy.GetDamage(5 * actualWeapon.damage); break;
+                            case DamagePointer.BodyParts.Head: enemy.GetDamage(10 * actualWeapon.damage); break;
+                        }
+
+                        // pushing ragdoll according to ray direction
+                        if (enemy.health <= 0)
+                        {
+                            Vector3 force = ray.direction;
+                            force.Normalize();
+                            enemy.AddForceToRagdoll(force * 10);
+                        }
+                    }
+
+                    #endregion
+                }
+
+                Crosshair.spread += actualWeapon.crosshairSpreadWhenShoot;
                 armsAnim.CrossFade("recoilAnim", 0);
                 StartCoroutine(ShowFlash());
                 actualWeapon.ammoInMagazine--;
                 UpdateAmmoText();
                 CheckIfMagazineEmpty();
                 source.PlayOneShot(actualWeapon.shootSound);
-
-                #region Bullet holes
-
-                // holes don't appear on enemies
-                if(!hit.transform.CompareTag("Enemy"))
-                {
-                    GameObject bulletHole = poolManager.GetObjectFromPool(0);
-                    bulletHole.transform.position = hit.point;
-                    bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                }
-
-                #endregion
-
-                #region Giving damage to enemy
-
-                if (hit.collider.transform.CompareTag("Enemy"))
-                {
-                    Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-                    enemy.enabled = false;
-                    switch (hit.collider.gameObject.GetComponent<DamagePointer>().bodyPart)
-                    {
-                        case DamagePointer.BodyParts.Limb: enemy.GetDamage(2 * actualWeapon.damage); break;
-                        case DamagePointer.BodyParts.Body: enemy.GetDamage(5 * actualWeapon.damage); break;
-                        case DamagePointer.BodyParts.Head: enemy.GetDamage(10 * actualWeapon.damage); break;
-                    }
-
-                    // pushing ragdoll according to ray direction
-                    if (enemy.health <= 0)
-                    {
-                        Vector3 force = ray.direction;
-                        force.Normalize();
-                        enemy.AddForceToRagdoll(force * 10);
-                    }
-                }
-
-                #endregion
+                fireRateTime = actualWeapon.fireRate;
 
                 if (!PlayerMovement.IsCrouching)
-                    recoil += 2;
+                    recoil += actualWeapon.recoil;
 
                 if (actualWeapon.isAuto)
                     StartCoroutine(AutoFire());
-            }
 
-            // playing emptyGunSound
-            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf)
-                GameManager.playerSource.PlayOneShot(emptyGunSound);
+                if(actualWeapon == weapons[3] && actualWeapon.ammoInMagazine > 0)
+                    armsAnim.CrossFade("ShotgunPump", 0f);
+            }
         }
 
         #endregion
@@ -139,8 +155,10 @@ public class Shooting : MonoBehaviour
             ChangeWeapon(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2))
             ChangeWeapon(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
             ChangeWeapon(2);
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+            ChangeWeapon(3);
 
         // changing with weapon wheel
         if (Input.GetKeyDown(KeyCode.Tab))
