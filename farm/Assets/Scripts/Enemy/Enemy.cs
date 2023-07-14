@@ -28,6 +28,7 @@ public class Enemy : MonoBehaviour
     Transform player;
     Coroutine shootingCoroutine;
     AIPath pathfinding;
+    GameManager gameManager;
 
     [Header("Sounds")]
     [SerializeField] AudioClip damageSound;
@@ -37,8 +38,9 @@ public class Enemy : MonoBehaviour
 
     [Header("Weapon - data")]
     [SerializeField] WeaponTypes weaponType;
+    [SerializeField, Range(1, 10)] int[] damages;
     [SerializeField] GameObject[] weaponsModels;
-    [SerializeField] float[] delaysForShooting;
+    [SerializeField] float[] fireRates;
     [SerializeField] AudioClip[] weaponsSounds;
     [SerializeField] int[] raysAmount;
     enum WeaponTypes { Pisol, Rifle, Shotgun }
@@ -64,6 +66,7 @@ public class Enemy : MonoBehaviour
         GetComponent<AIDestinationSetter>().target = GameObject.FindGameObjectWithTag("Player").transform;
         player = GetComponent<AIDestinationSetter>().target;
         source = GetComponent<AudioSource>();
+        gameManager = FindObjectOfType<GameManager>();
         StartCoroutine(CheckDistance());
         distanceChecker.parent = null;
 
@@ -203,7 +206,12 @@ public class Enemy : MonoBehaviour
     {
         while(true)
         {
-            yield return new WaitForSeconds(Random.Range(1, 3));
+            if(IsPlayerBehindWall())
+                StartCoroutine(ChangeBehaviourIfSeePlayer(false));
+
+            yield return new WaitForSeconds(Random.Range(0.2f, 0.7f));
+            //StartCoroutine(ChangeBehaviourIfSeePlayer)
+            //yield return new WaitForSeconds(0.1f);
             int howManyShoots = Random.Range(1, 10);
             
             // it works similar to shooting by player, in Shooting.cs script it's better described
@@ -216,14 +224,29 @@ public class Enemy : MonoBehaviour
                     Physics.Raycast(shootPoint.position,
                         (player.position + Vector3.up * recoil + Vector3.right * recoil - shootPoint.position), out hit);
 
+                    #region Giving damage to player
+
                     if (hit.transform.CompareTag("Player"))
-                    {
-                        Debug.Log("trafiony");
+                    {                       
+                        int randomNumber = Random.Range(1, 6);
+                        int actualDamage = damages[weaponIndex];
+
+                        // damage to player isn't based on ray's hit
+                        // it works on random
+                        if(randomNumber == 1)
+                            gameManager.GivePlayerDamage(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
+                        else if(randomNumber > 1 && randomNumber <= 3)
+                            gameManager.GivePlayerDamage(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
+                        else if(randomNumber > 3 && randomNumber <= 5)
+                            gameManager.GivePlayerDamage(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
                     }
+
+                    #endregion
                 }
                 source.PlayOneShot(weaponsSounds[weaponIndex]);
-                yield return new WaitForSeconds(delaysForShooting[weaponIndex]);
+                yield return new WaitForSeconds(fireRates[weaponIndex]);
             }
+            yield return new WaitForSeconds(Random.Range(1, 3));
         }
     }
 
@@ -237,10 +260,10 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(0.2f);  // to avoid glitch
 
         // raycast is needed to detect if player isn't behind a wall
-        RaycastHit hit;
-        Physics.Raycast(shootPoint.position, (player.position - shootPoint.position), out hit);
-
-        if (canSeePlayer && hit.transform.CompareTag("Player"))
+       // RaycastHit hit;
+        //Physics.Raycast(shootPoint.position, (player.position - shootPoint.position), out hit);
+        //Debug.Log(hit.transform.name);
+        if (canSeePlayer && !IsPlayerBehindWall()/* hit.transform.CompareTag("Player")*/)
         {
             pathfinding.enabled = false;
 
@@ -251,6 +274,8 @@ public class Enemy : MonoBehaviour
         {
             pathfinding.enabled = true;
 
+            //StopCoroutine(shootingCoroutine);
+            //shootingCoroutine = null;
             try
             {
                 StopCoroutine(shootingCoroutine);
@@ -259,5 +284,16 @@ public class Enemy : MonoBehaviour
             catch { }
         }
         isFighting = canSeePlayer;
+    }
+
+    bool IsPlayerBehindWall()
+    {
+        RaycastHit hit;
+        Physics.Raycast(shootPoint.position, (player.position - shootPoint.position), out hit);
+
+        if (hit.transform.CompareTag("Player"))
+            return false;
+        else
+            return true;
     }
 }
