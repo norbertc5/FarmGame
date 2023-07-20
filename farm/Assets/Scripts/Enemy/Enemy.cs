@@ -233,12 +233,13 @@ public class Enemy : MonoBehaviour
 
                         // damage to player isn't based on ray's hit
                         // it works on random
+                        Player playerScript = player.GetComponent<Player>();
                         if(randomNumber == 1)
-                            gameManager.GivePlayerDamage(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
+                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
                         else if(randomNumber > 1 && randomNumber <= 3)
-                            gameManager.GivePlayerDamage(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
+                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
                         else if(randomNumber > 3 && randomNumber <= 5)
-                            gameManager.GivePlayerDamage(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
+                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
                     }
 
                     #endregion

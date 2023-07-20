@@ -4,13 +4,24 @@ using UnityEngine;
 
 public class ObjectToTake : MonoBehaviour
 {
-    [SerializeField] float rotationSpeed = 2;
+    float rotationSpeed = 100;
+    enum ObjectType { Weapon, Health}
+    [SerializeField] ObjectType objectType;
+
+    [Header("Weapon")]
     [SerializeField] int weaponIndex;
     Shooting shooting;
 
+    [Header("Health")]
+    Player player;
+
     private void Awake()
     {
-        shooting = FindObjectOfType<Shooting>();
+        switch(objectType)
+        {
+            case ObjectType.Weapon: shooting = FindObjectOfType<Shooting>(); break;
+            case ObjectType.Health: player = FindObjectOfType<Player>(); break;
+        }
     }
 
     void Update()
@@ -22,7 +33,11 @@ public class ObjectToTake : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            shooting.TakeWeapon(weaponIndex);
+            switch(objectType)
+            {
+                case ObjectType.Weapon: shooting.TakeWeapon(weaponIndex); break;
+                case ObjectType.Health: if (player.playerHealth < 100) player.HealPlayer(20); else return; break;  // can't pick up health when health is full
+            }
             this.gameObject.SetActive(false);
         }
     }
