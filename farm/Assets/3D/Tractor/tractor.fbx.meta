@@ -43,12 +43,12 @@ ModelImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: lampa
-    second: {fileID: 2800000, guid: 3afffca90164f5e4fa5e3fe23952d45e, type: 3}
+    second: {fileID: 2800000, guid: b5fce7e184b9ff84889f6abcc23ff44f, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: silnik
-    second: {fileID: 2800000, guid: 94d7ad4086ade2743b7089180ddf4bf4, type: 3}
+    second: {fileID: 2800000, guid: 5a697eb2950a8e84f87bf1bc44cc97c9, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

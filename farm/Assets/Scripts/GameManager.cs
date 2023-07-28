@@ -9,12 +9,15 @@ using UnityEngine.Rendering.Universal;
 public class GameManager : MonoBehaviour
 {
     public TextMeshProUGUI infoText;
-    public static AudioSource playerSource;  // playerSource is source to play all sounds related to player
+    public static AudioSource playerSource;  // playerSource is playerSource to play all sounds related to player
     public const int HEAD_DMG_MULTIPLAYER = 10;
     public const int BODY_DMG_MULTIPLAYER = 5;
     public const int LIMBS_DMG_MULTIPLAYER = 2;
     public VolumeProfile volumeProfile;
     [HideInInspector] public Vignette vignette;
+
+    public delegate void Action();
+    public Action OnInteractionWithVehicle;
 
     private void Awake()
     {

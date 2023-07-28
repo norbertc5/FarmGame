@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class Shooting : MonoBehaviour
 {
     [Header("General")]
-    //[SerializeField] float crosshairSpreadWhenShoot = 20;
     public static float recoil;
     Weapon actualWeapon;
     bool canShoot = true;
@@ -16,6 +15,7 @@ public class Shooting : MonoBehaviour
     bool isReloading;
     bool[] unlockedWeapons;
     float fireRateTime;
+    public static bool canPlayerChangeWeapon = true;
 
     [Header("References")]
     [SerializeField] Animator armsAnim;
@@ -46,6 +46,7 @@ public class Shooting : MonoBehaviour
         source = GetComponent<AudioSource>();
         unlockedWeapons = new bool[weapons.Length];
         unlockedWeapons[0] = true;
+        gameManager.OnInteractionWithVehicle += HideWeaponWheel;
     }
 
     void Update()
@@ -150,34 +151,37 @@ public class Shooting : MonoBehaviour
 
         #region Weapon Change
 
-        // changing with keyboard
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ChangeWeapon(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            ChangeWeapon(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            ChangeWeapon(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            ChangeWeapon(3);
-
-        // changing with weapon wheel
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if(canPlayerChangeWeapon)
         {
-            weaponWheel.SetActive(true);
-            PlayerMovement.ChangeMovementPossibility(false);
-            canShoot = false;
-            Cursor.lockState = CursorLockMode.None;
-            crosshair.gameObject.SetActive(false);
-        }
-        else if (Input.GetKeyUp(KeyCode.Tab))
-        {
-            weaponWheel.SetActive(false);
-            PlayerMovement.ChangeMovementPossibility(true);
-            Cursor.lockState = CursorLockMode.Locked;
-            crosshair.gameObject.SetActive(true);
+            // changing with keyboard
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+                ChangeWeapon(0);
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+                ChangeWeapon(1);
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+                ChangeWeapon(2);
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+                ChangeWeapon(3);
 
-            if (!isReloading)
-                canShoot = true;
+            // changing with weapon wheel
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                weaponWheel.SetActive(true);
+                PlayerMovement.ChangeMovementPossibility(false);
+                canShoot = false;
+                Cursor.lockState = CursorLockMode.None;
+                crosshair.gameObject.SetActive(false);
+            }
+            else if (Input.GetKeyUp(KeyCode.Tab))
+            {
+                HideWeaponWheel();
+                PlayerMovement.ChangeMovementPossibility(true);
+                Cursor.lockState = CursorLockMode.Locked;
+                crosshair.gameObject.SetActive(true);
+
+                if (!isReloading)
+                    canShoot = true;
+            }
         }
 
         #endregion
@@ -318,5 +322,13 @@ public class Shooting : MonoBehaviour
         buttonsInWheel[weaponIndex].transform.GetChild(0).GetComponent<Image>().enabled = true;
         buttonsInWheel[weaponIndex].GetComponentInChildren<TextMeshProUGUI>().enabled = true;
         buttonsInWheel[weaponIndex].interactable = true;
+    }
+
+    /// <summary> Just hide weapon wheel. </summary>
+    void HideWeaponWheel()
+    {
+        // needed when player get on vehicle
+        weaponWheel.SetActive(false);
+        Debug.Log("aaaa");
     }
 }

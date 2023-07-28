@@ -6,7 +6,7 @@ public class MouseLook : MonoBehaviour
 {
     [SerializeField] float sensitivity = 100;
     [SerializeField] Transform playerBody;
-    [SerializeField] float deviateSpeed = 10;  // how fast cam moveing while shooting
+    [SerializeField] float deviateSpeed = 10;  // how fast cam moving while shooting
     float xRotation;
     float cameraDeviate;
 

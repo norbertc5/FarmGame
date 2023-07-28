@@ -136,16 +136,27 @@ public class Enemy : MonoBehaviour
         {
             if(!isDeath)
             {
-                GameObject weaponObject = poolManager.GetObjectFromPool(2 + weaponIndex);
-                weaponObject.transform.position = skeletonObject.transform.position;  // drop weapon after death
+                int randomNum = Random.Range(1, 6);
+                if(randomNum <= 3)
+                {
+                    GameObject weaponObject = poolManager.GetObjectFromPool(2 + weaponIndex);
+                    weaponObject.transform.position = skeletonObject.transform.position;  // drop weapon after death
+                }
+                else
+                {
+                    GameObject heartObject = poolManager.GetObjectFromPool(5);
+                    heartObject.transform.position = skeletonObject.transform.position;  // drop heart
+                }
+
                 SetRagdollActive(false);
                 animator.enabled = false;
                 pathfinding.enabled = false;
                 GetComponent<CharacterController>().enabled = false;
                 SetRagdollActive(true);
 
-                if (shootingCoroutine != null)
-                    StopCoroutine(shootingCoroutine);
+                StopAllCoroutines();
+                //if (shootingCoroutine != null)
+                  //  StopCoroutine(shootingCoroutine);
 
                 // turn off weapon models
                 foreach(GameObject weaponModel in weaponsModels)
@@ -287,6 +298,7 @@ public class Enemy : MonoBehaviour
         isFighting = canSeePlayer;
     }
 
+    /// <summary> Return true if the player in hidden behind wall and enemy can't see him. </summary>
     bool IsPlayerBehindWall()
     {
         RaycastHit hit;

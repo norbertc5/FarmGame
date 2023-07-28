@@ -1791,15 +1791,15 @@ MonoBehaviour:
   damageSound: {fileID: 8300000, guid: 9a5c6b1cf928c8b419e93e24caebcd45, type: 3}
   deathSound: {fileID: 8300000, guid: a5453530018813741acad3cc7e5bb16f, type: 3}
   weaponType: 1
+  damages: 
   weaponsModels:
   - {fileID: 6275212982758681098}
   - {fileID: 6275212981320645401}
-  delaysForShooting:
-  - 0.3
-  - 0.1
+  fireRates: []
   weaponsSounds:
   - {fileID: 8300000, guid: 354f2fd45ae74f1499b9cbe755c2dfcd, type: 3}
   - {fileID: 8300000, guid: 5af6ed85ef7f96f4584b2eef775f3172, type: 3}
+  raysAmount: 
   rigBuilder: {fileID: 6275212982685000495}
   rightArmIK: {fileID: 6275212982550955178}
   leftArmIK: {fileID: 6275212982151000185}
