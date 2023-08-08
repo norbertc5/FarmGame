@@ -11,6 +11,8 @@ public class Weapon : MonoBehaviour
     [Range(1, 10)] public int damage;
     [Range(1, 5)] public int recoil = 2;
     public int crosshairSpreadWhenShoot = 20;
+    public int range = 100;
+    public int additionalForceToRagdoll = 1;
 
     [Header("Ammo")]
     public int magazineCapacity;
@@ -24,6 +26,7 @@ public class Weapon : MonoBehaviour
     public float fireRate = 0.1f;
     public int raysAmount = 1;
     public float additionalDispersionSize = 1;
+    public float additionalDelayForRay = 0;  // it's needed to throw ray in suitable animation moment (melee weapons)
 
     [Header("Sounds")]
     public AudioClip shootSound;

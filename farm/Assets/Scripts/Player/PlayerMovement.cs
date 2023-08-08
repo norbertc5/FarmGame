@@ -235,7 +235,7 @@ public class PlayerMovement : PlayerManager
     public static void ChangeMovementPossibility(bool value)
     {
         canMove = value;
-        playerSource.enabled = value;
+        playerSource.volume = (value == true) ? 0.25f : 0;
         // walk effects must be turned off when movement is
         FindObjectOfType<HeadBobbing>().enabled = value;
         FindObjectOfType<WeaponSway>().enabled = value;

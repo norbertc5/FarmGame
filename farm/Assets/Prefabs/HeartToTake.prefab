@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4390585257604230799}
   - component: {fileID: 4390585257604230784}
   - component: {fileID: 4390585257604230785}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: HeartToTake
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,6 +131,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5c0d689d746ec1a4e86cf1e90e8396bd, type: 3}
       propertyPath: m_Name
       value: heart
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5c0d689d746ec1a4e86cf1e90e8396bd, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c0d689d746ec1a4e86cf1e90e8396bd, type: 3}

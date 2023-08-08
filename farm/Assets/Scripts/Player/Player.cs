@@ -99,7 +99,7 @@ public class Player : PlayerManager
     /// <summary> Show red vignette by post processing and make it pulse. </summary>
     IEnumerator ShowVignette()
     {
-        float speed = 0.05f;
+        float speed = 0.1f;
         while (true)
         {
             // increasing size of vignette
@@ -166,6 +166,5 @@ public class Player : PlayerManager
         playerCamera.GetComponent<AudioListener>().enabled = !getOn;
         actualVehicle.SendMessage("PlayerInteraction", getOn);
         Shooting.canPlayerChangeWeapon = !getOn;
-        // move player to suitable place when get off
     }
 }

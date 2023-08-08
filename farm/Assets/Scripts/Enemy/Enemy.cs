@@ -1,8 +1,8 @@
 using Pathfinding;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Animations.Rigging;
-using static UnityEngine.GraphicsBuffer;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(AIPath))]
@@ -57,6 +57,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] Transform[] leftArmIKTargets;
     [SerializeField] Transform[] leftArmIKHints;
 
+    float meleeDamageCooldown;
+
     void Awake()
     {
         ragdollElements = GetComponentsInChildren<DamagePointer>();
@@ -100,13 +102,16 @@ public class Enemy : MonoBehaviour
 
         if(timeToPlayPainSound >= 0)
             timeToPlayPainSound -= Time.deltaTime;
+
+        if(meleeDamageCooldown >= 0)
+            meleeDamageCooldown -= Time.deltaTime;
     }
 
     /// <summary> Give damage to enemy. </summary>
     /// <param name="value"></param>
     public void GetDamage(int value)
     {
-        GetComponent<Enemy>().enabled = true;  // idk why but it turns off when enemy gets damage
+        enabled = true;  // idk why but it turns off when enemy gets damage
         health -= value;
 
         #region Playing pain sounds
@@ -221,8 +226,6 @@ public class Enemy : MonoBehaviour
                 StartCoroutine(ChangeBehaviourIfSeePlayer(false));
 
             yield return new WaitForSeconds(Random.Range(0.2f, 0.7f));
-            //StartCoroutine(ChangeBehaviourIfSeePlayer)
-            //yield return new WaitForSeconds(0.1f);
             int howManyShoots = Random.Range(1, 10);
             
             // it works similar to shooting by player, in Shooting.cs script it's better described
@@ -270,12 +273,7 @@ public class Enemy : MonoBehaviour
             yield break;
 
         yield return new WaitForSeconds(0.2f);  // to avoid glitch
-
-        // raycast is needed to detect if player isn't behind a wall
-       // RaycastHit hit;
-        //Physics.Raycast(shootPoint.position, (player.position - shootPoint.position), out hit);
-        //Debug.Log(hit.transform.name);
-        if (canSeePlayer && !IsPlayerBehindWall()/* hit.transform.CompareTag("Player")*/)
+        if (canSeePlayer && !IsPlayerBehindWall())
         {
             pathfinding.enabled = false;
 
@@ -285,9 +283,6 @@ public class Enemy : MonoBehaviour
         else
         {
             pathfinding.enabled = true;
-
-            //StopCoroutine(shootingCoroutine);
-            //shootingCoroutine = null;
             try
             {
                 StopCoroutine(shootingCoroutine);

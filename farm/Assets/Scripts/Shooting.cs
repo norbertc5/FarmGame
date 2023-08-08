@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TMPro;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,9 +32,10 @@ public class Shooting : MonoBehaviour
     GameManager gameManager;
 
     [Header("Sounds")]
-    AudioSource source;
     [SerializeField] AudioClip emptyGunSound;
     [SerializeField] AudioClip pickUpSound;
+    [SerializeField] AudioClip meleeHitSound;
+    AudioSource source;
 
     private void Start()
     {
@@ -47,6 +49,7 @@ public class Shooting : MonoBehaviour
         unlockedWeapons = new bool[weapons.Length];
         unlockedWeapons[0] = true;
         gameManager.OnInteractionWithVehicle += HideWeaponWheel;
+        actualWeapon = weapons[4];
     }
 
     void Update()
@@ -60,70 +63,36 @@ public class Shooting : MonoBehaviour
 
         #region Raycasting
 
-        if (!actualWeapon.isMelee && fireRateTime <= 0 && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
+        if (fireRateTime <= 0 && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
             (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay)))
         {
             // playing emptyGunSound
-            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf)
+            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf && !actualWeapon.isMelee)
                 GameManager.playerSource.PlayOneShot(emptyGunSound);
 
             if (canShoot && actualWeapon.ammoInMagazine > 0)
             {
-                Ray ray;
-                RaycastHit hit;
-
                 // create suitable amount of rays
                 for (int i = 0; i < actualWeapon.raysAmount; i++)
                 {
-                    // make dispersion according to crosshair spread
-                    Vector2 randomTarget = UnityEngine.Random.insideUnitCircle * Crosshair.spread / 5;
-                    randomTarget *= actualWeapon.additionalDispersionSize;  // additional dispersion for specific weapons
-                    ray = Camera.main.ScreenPointToRay(Input.mousePosition + new Vector3(randomTarget.x, randomTarget.y));
-                    Physics.Raycast(ray, out hit, 100);
+                    StartCoroutine(Shoot());
+                }
 
-                    #region Bullet holes
-
-                    // holes don't appear on enemies
-                    if (!hit.transform.CompareTag("Enemy"))
-                    {
-                        GameObject bulletHole = poolManager.GetObjectFromPool(0);
-                        bulletHole.transform.position = hit.point;
-                        bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                    }
-
-                    #endregion
-
-                    #region Giving damage to enemy
-
-                    if (hit.collider.transform.CompareTag("Enemy"))
-                    {
-                        Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-                        enemy.enabled = false;
-                        switch (hit.collider.gameObject.GetComponent<DamagePointer>().bodyPart)
-                        {
-                            case DamagePointer.BodyParts.Limb: enemy.GetDamage(2 * actualWeapon.damage); break;
-                            case DamagePointer.BodyParts.Body: enemy.GetDamage(5 * actualWeapon.damage); break;
-                            case DamagePointer.BodyParts.Head: enemy.GetDamage(10 * actualWeapon.damage); break;
-                        }
-
-                        // pushing ragdoll according to ray direction
-                        if (enemy.health <= 0)
-                        {
-                            Vector3 force = ray.direction;
-                            force.Normalize();
-                            enemy.AddForceToRagdoll(force * 10);
-                        }
-                    }
-
-                    #endregion
+                // melee weapons work as same as normal ones but throw ray on small distance
+                if(!actualWeapon.isMelee)
+                {
+                    armsAnim.CrossFade("recoilAnim", 0);
+                    StartCoroutine(ShowFlash());
+                    actualWeapon.ammoInMagazine--;
+                    UpdateAmmoText();
+                    CheckIfMagazineEmpty();
+                }
+                else
+                {
+                    armsAnim.CrossFade("batAttack", 0);
                 }
 
                 Crosshair.spread += actualWeapon.crosshairSpreadWhenShoot;
-                armsAnim.CrossFade("recoilAnim", 0);
-                StartCoroutine(ShowFlash());
-                actualWeapon.ammoInMagazine--;
-                UpdateAmmoText();
-                CheckIfMagazineEmpty();
                 source.PlayOneShot(actualWeapon.shootSound);
                 fireRateTime = actualWeapon.fireRate;
 
@@ -162,6 +131,8 @@ public class Shooting : MonoBehaviour
                 ChangeWeapon(2);
             else if (Input.GetKeyDown(KeyCode.Alpha4))
                 ChangeWeapon(3);
+            else if (Input.GetKeyDown(KeyCode.Alpha5))
+                ChangeWeapon(4);
 
             // changing with weapon wheel
             if (Input.GetKeyDown(KeyCode.Tab))
@@ -185,6 +156,72 @@ public class Shooting : MonoBehaviour
         }
 
         #endregion
+    }
+
+    /// <summary> Throw ray. Next make bullet hole and check if hit enemy. </summary>
+    IEnumerator Shoot()
+    {
+        yield return new WaitForSeconds(actualWeapon.additionalDelayForRay);  // delay between press button and shoot
+
+        Ray ray;
+        RaycastHit hit;
+        // make dispersion according to crosshair spread
+        Vector2 randomTarget = UnityEngine.Random.insideUnitCircle * Crosshair.spread / 5;
+        randomTarget *= actualWeapon.additionalDispersionSize;  // additional dispersion for specific weapons
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition + new Vector3(randomTarget.x, randomTarget.y));
+        Physics.Raycast(ray, out hit, actualWeapon.range);
+
+        #region Bullet holes
+
+        if (!actualWeapon.isMelee)
+        {
+            // holes don't appear on enemies
+            if (!hit.transform.CompareTag("Enemy"))
+            {
+                GameObject bulletHole = poolManager.GetObjectFromPool(0);
+                bulletHole.transform.position = hit.point;
+                bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            }
+        }
+
+        #endregion
+
+        // doesn't throw error when no hit (e.g. when shooting to sky)
+        try
+        {
+            #region Giving damage to enemy
+
+            if (hit.collider.transform.CompareTag("Enemy"))
+            {
+                Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+                enemy.enabled = false;
+                switch (hit.collider.gameObject.GetComponent<DamagePointer>().bodyPart)
+                {
+                    case DamagePointer.BodyParts.Limb: enemy.GetDamage(2 * actualWeapon.damage); break;
+                    case DamagePointer.BodyParts.Body: enemy.GetDamage(5 * actualWeapon.damage); break;
+                    case DamagePointer.BodyParts.Head: enemy.GetDamage(10 * actualWeapon.damage); break;
+                }
+
+                // pushing ragdoll according to ray direction
+                if (enemy.health <= 0)
+                {
+                    Vector3 force = ray.direction;
+                    force.Normalize();
+                    enemy.AddForceToRagdoll(force * 10 * actualWeapon.additionalForceToRagdoll);
+                }
+
+            }
+
+            #endregion
+
+            #region Melee hit sound
+
+            if (actualWeapon.isMelee && hit.collider.CompareTag("Enemy"))
+                source.PlayOneShot(meleeHitSound);
+
+            #endregion
+        }
+        catch { }
     }
 
     /// <summary> Show flash on end of the weapon's barrel for short time. </summary>
@@ -329,6 +366,5 @@ public class Shooting : MonoBehaviour
     {
         // needed when player get on vehicle
         weaponWheel.SetActive(false);
-        Debug.Log("aaaa");
     }
 }
