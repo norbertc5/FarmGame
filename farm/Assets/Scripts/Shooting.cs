@@ -49,7 +49,6 @@ public class Shooting : MonoBehaviour
         unlockedWeapons = new bool[weapons.Length];
         unlockedWeapons[0] = true;
         gameManager.OnInteractionWithVehicle += HideWeaponWheel;
-        actualWeapon = weapons[4];
     }
 
     void Update()
@@ -86,6 +85,7 @@ public class Shooting : MonoBehaviour
                     actualWeapon.ammoInMagazine--;
                     UpdateAmmoText();
                     CheckIfMagazineEmpty();
+                    gameManager.OnLoudShoot?.Invoke();
                 }
                 else
                 {

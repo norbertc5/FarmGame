@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 
     public delegate void Action();
     public Action OnInteractionWithVehicle;
+    public Action OnLoudShoot;
 
     private void Awake()
     {

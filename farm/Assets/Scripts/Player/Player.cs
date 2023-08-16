@@ -91,9 +91,7 @@ public class Player : PlayerManager
     {
         playerHealth += (int)value;
         UpdatePlayerHealth();
-
-        if (playerHealth < 100)
-            playerSource.PlayOneShot(playerHealSound);
+        playerSource.PlayOneShot(playerHealSound);
     }
 
     /// <summary> Show red vignette by post processing and make it pulse. </summary>

@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 
 public class ViewRange : MonoBehaviour
 {
-    Enemy enemy;
+    HumanEnemy enemy;
     bool isPlayerInView;
 
     private void Awake()
     {
-        enemy = GetComponentInParent<Enemy>();
+        enemy = GetComponentInParent<HumanEnemy>();
     }
 
     private void OnTriggerEnter(Collider other)

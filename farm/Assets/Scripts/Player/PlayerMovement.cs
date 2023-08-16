@@ -146,14 +146,15 @@ public class PlayerMovement : PlayerManager
         // time after stop crouching, when Player has time to resize
         if(isResizing)
         {
-            elapsedTime += 2 * Time.deltaTime;
+            int resizingSpeed = 4;
+            elapsedTime += resizingSpeed * Time.deltaTime;
             transform.localScale = Vector3.Lerp(startScale, endScale, elapsedTime);
             shooting.transform.localPosition = Vector3.Lerp(weaponStartPosition, weaponEndPosition, elapsedTime);
 
             // Player smoothly stand up from crouching
             if (!IsCrouching)
-                velocity.y = 1;
-            else // Player can'timeToStartSway fly when spam crouch button
+                velocity.y = resizingSpeed / 2;
+            else // Player can't fly when spam crouch button
                 velocity.y = DEFAULT_Y_VELOCITY;
 
             if (transform.localScale == endScale)
