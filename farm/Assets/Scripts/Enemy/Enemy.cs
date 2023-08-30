@@ -74,6 +74,9 @@ public class Enemy : MonoBehaviour
             animator.enabled = false;
             pathfinding.enabled = false;
             isDeath = true;
+            // animals have collider to detect contact with a tractor, turn it off to don't disturb ragdoll
+            if (GetComponent<Collider>()) { GetComponent<Collider>().enabled = false; }
+            StopAllCoroutines();
         }
     }
 
@@ -103,5 +106,12 @@ public class Enemy : MonoBehaviour
             timeToPlayPainSound -= Time.deltaTime;
             yield return null;
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // enemy dies after touch a scythe
+        if(other.CompareTag("Scythe"))
+            GetDamage(100);
     }
 }

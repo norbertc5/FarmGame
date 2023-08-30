@@ -76,9 +76,6 @@ public class HumanEnemy : Enemy
             transform.eulerAngles = new Vector3(0, transform.eulerAngles.y);
         }
 
-        //if(timeToPlayPainSound >= 0)
-          //  timeToPlayPainSound -= Time.deltaTime;
-
         if(meleeDamageCooldown >= 0)
             meleeDamageCooldown -= Time.deltaTime;
     }
@@ -144,28 +141,6 @@ public class HumanEnemy : Enemy
         #endregion
     }
 
-    /*/// <summary> Make ragdoll kinematic or vice versa. </summary>
-    void SetRagdollActive(bool value)
-    {
-        foreach (DamagePointer dp in ragdollElements)
-        {
-            dp.GetComponent<Rigidbody>().isKinematic = !value;
-        }
-    }
-    */
-
-    /*/// <summary>
-    /// Push ragdoll.
-    /// </summary>
-    /// <param name="force"></param>
-    public override void AddForceToRagdoll(Vector3 force)
-    {
-        foreach (DamagePointer dp in ragdollElements)
-        {
-            dp.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
-        }
-    }*/
-
     /// <summary>
     /// Check if player is in the same place or moving and playing suitable animation.
     /// </summary>
@@ -212,21 +187,25 @@ public class HumanEnemy : Enemy
 
                     #region Giving damage to player
 
-                    if (hit.transform.CompareTag("Player"))
-                    {                       
-                        int randomNumber = Random.Range(1, 6);
-                        int actualDamage = damages[weaponIndex];
+                    try
+                    {
+                        if (hit.transform.CompareTag("Player"))
+                        {
+                            int randomNumber = Random.Range(1, 6);
+                            int actualDamage = damages[weaponIndex];
 
-                        // damage to player isn't based on ray's hit
-                        // it works on random
-                        Player playerScript = player.GetComponent<Player>();
-                        if(randomNumber == 1)
-                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
-                        else if(randomNumber > 1 && randomNumber <= 3)
-                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
-                        else if(randomNumber > 3 && randomNumber <= 5)
-                            playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
+                            // damage to player isn't based on ray's hit
+                            // it works on random
+                            Player playerScript = player.GetComponent<Player>();
+                            if (randomNumber == 1)
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
+                            else if (randomNumber > 1 && randomNumber <= 3)
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
+                            else if (randomNumber > 3 && randomNumber <= 5)
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
+                        }
                     }
+                    catch { }
 
                     #endregion
                 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class DamagePointer : MonoBehaviour
 {
     // this script points how much damage should enemy take after hittiong by raycast specyfic body part

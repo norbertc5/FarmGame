@@ -60,55 +60,6 @@ public class Shooting : MonoBehaviour
         if (fireRateTime >= 0)
             fireRateTime -= Time.deltaTime;
 
-        #region Raycasting
-
-        if (fireRateTime <= 0 && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
-            (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay)))
-        {
-            // playing emptyGunSound
-            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf && !actualWeapon.isMelee)
-                GameManager.playerSource.PlayOneShot(emptyGunSound);
-
-            if (canShoot && actualWeapon.ammoInMagazine > 0)
-            {
-                // create suitable amount of rays
-                for (int i = 0; i < actualWeapon.raysAmount; i++)
-                {
-                    StartCoroutine(Shoot());
-                }
-
-                // melee weapons work as same as normal ones but throw ray on small distance
-                if(!actualWeapon.isMelee)
-                {
-                    armsAnim.CrossFade("recoilAnim", 0);
-                    StartCoroutine(ShowFlash());
-                    actualWeapon.ammoInMagazine--;
-                    UpdateAmmoText();
-                    CheckIfMagazineEmpty();
-                    gameManager.OnLoudShoot?.Invoke();
-                }
-                else
-                {
-                    armsAnim.CrossFade("batAttack", 0);
-                }
-
-                Crosshair.spread += actualWeapon.crosshairSpreadWhenShoot;
-                source.PlayOneShot(actualWeapon.shootSound);
-                fireRateTime = actualWeapon.fireRate;
-
-                if (!PlayerMovement.IsCrouching)
-                    recoil += actualWeapon.recoil;
-
-                if (actualWeapon.isAuto)
-                    StartCoroutine(AutoFire());
-
-                if(actualWeapon == weapons[3] && actualWeapon.ammoInMagazine > 0)
-                    armsAnim.CrossFade("ShotgunPump", 0f);
-            }
-        }
-
-        #endregion
-
         #region Reload
 
         if (Input.GetKeyDown(KeyCode.R) && actualWeapon.ammoInMagazine < actualWeapon.magazineCapacity)
@@ -133,6 +84,8 @@ public class Shooting : MonoBehaviour
                 ChangeWeapon(3);
             else if (Input.GetKeyDown(KeyCode.Alpha5))
                 ChangeWeapon(4);
+            else if (Input.GetKeyDown(KeyCode.Alpha6))
+                ChangeWeapon(5);
 
             // changing with weapon wheel
             if (Input.GetKeyDown(KeyCode.Tab))
@@ -156,6 +109,59 @@ public class Shooting : MonoBehaviour
         }
 
         #endregion
+
+        // it must be on end of Update
+        #region Raycasting
+
+        if (!actualWeapon.isUseable)
+            return;
+
+        if (fireRateTime <= 0 && ((!actualWeapon.isAuto && Input.GetMouseButtonDown(0)) ||
+            (actualWeapon.isAuto && Input.GetMouseButton(0) && autoFireDelay)))
+        {
+            // playing emptyGunSound
+            if (actualWeapon.ammoAmount <= 0 && actualWeapon.ammoInMagazine <= 0 && Input.GetMouseButtonDown(0) && !weaponWheel.activeSelf && !actualWeapon.isMelee)
+                GameManager.playerSource.PlayOneShot(emptyGunSound);
+
+            if (canShoot && actualWeapon.ammoInMagazine > 0)
+            {
+                // create suitable amount of rays
+                for (int i = 0; i < actualWeapon.raysAmount; i++)
+                {
+                    StartCoroutine(Shoot());
+                }
+
+                // melee weapons work as same as normal ones but throw ray on small distance
+                if (!actualWeapon.isMelee)
+                {
+                    armsAnim.CrossFade("recoilAnim", 0);
+                    StartCoroutine(ShowFlash());
+                    actualWeapon.ammoInMagazine--;
+                    UpdateAmmoText();
+                    CheckIfMagazineEmpty();
+                    gameManager.OnLoudShoot?.Invoke();
+                }
+                else
+                {
+                    armsAnim.CrossFade("batAttack", 0);
+                }
+
+                Crosshair.spread += actualWeapon.crosshairSpreadWhenShoot;
+                source.PlayOneShot(actualWeapon.shootSound);
+                fireRateTime = actualWeapon.fireRate;
+
+                if (!PlayerMovement.IsCrouching)
+                    recoil += actualWeapon.recoil;
+
+                if (actualWeapon.isAuto)
+                    StartCoroutine(AutoFire());
+
+                if (actualWeapon == weapons[3] && actualWeapon.ammoInMagazine > 0)
+                    armsAnim.CrossFade("ShotgunPump", 0f);
+            }
+        }
+
+        #endregion
     }
 
     /// <summary> Throw ray. Next make bullet hole and check if hit enemy. </summary>
@@ -171,24 +177,25 @@ public class Shooting : MonoBehaviour
         ray = Camera.main.ScreenPointToRay(Input.mousePosition + new Vector3(randomTarget.x, randomTarget.y));
         Physics.Raycast(ray, out hit, actualWeapon.range);
 
-        #region Bullet holes
-
-        if (!actualWeapon.isMelee)
-        {
-            // holes don't appear on enemies
-            if (!hit.transform.CompareTag("Enemy"))
-            {
-                GameObject bulletHole = poolManager.GetObjectFromPool(0);
-                bulletHole.transform.position = hit.point;
-                bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-            }
-        }
-
-        #endregion
 
         // doesn't throw error when no hit (e.g. when shooting to sky)
         try
         {
+            #region Bullet holes
+
+            if (!actualWeapon.isMelee)
+            {
+                // holes don't appear on enemies
+                if (!hit.transform.CompareTag("Enemy"))
+                {
+                    GameObject bulletHole = poolManager.GetObjectFromPool(0);
+                    bulletHole.transform.position = hit.point;
+                    bulletHole.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                }
+            }
+
+            #endregion
+
             #region Giving damage to enemy
 
             if (hit.collider.transform.CompareTag("Enemy"))
@@ -209,6 +216,11 @@ public class Shooting : MonoBehaviour
                     force.Normalize();
                     enemy.AddForceToRagdoll(force * 10 * actualWeapon.additionalForceToRagdoll);
                 }
+
+                /*if(enemy.GetComponent<Cow>())
+                {
+                    enemy.AddForceToRagdoll(new Vector3(0.5f, -1f) * 100 * actualWeapon.additionalForceToRagdoll);
+                }*/
 
             }
 

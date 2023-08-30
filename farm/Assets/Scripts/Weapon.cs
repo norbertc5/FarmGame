@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviour
     public int crosshairSpreadWhenShoot = 20;
     public int range = 100;
     public int additionalForceToRagdoll = 1;
+    public bool isUseable = true;
 
     [Header("Ammo")]
     public int magazineCapacity;
@@ -40,4 +41,6 @@ public class Weapon : MonoBehaviour
     {
         ammoInMagazine = magazineCapacity;
     }
+
+    private void Start() { }  // to make possibility to turn off from inspector
 }
