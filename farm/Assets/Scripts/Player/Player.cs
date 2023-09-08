@@ -21,8 +21,13 @@ public class Player : PlayerManager
     CarController actualVehicle;
 
     [Header("References")]
+    [SerializeField] GameObject interactionSign;
     DamageIndicator damageIndicator;
     PlayerMovement playerMovement;
+
+    [Header("Door using")]
+    bool canUseDoor;
+    Door actualDoor;
 
     private void Awake()
     {
@@ -46,6 +51,13 @@ public class Player : PlayerManager
         // get off vehicle
         if(isPlayerInVehicle && Input.GetKeyDown(KeyCode.E))
             StartCoroutine(VehicleInteraction(false));
+
+        #endregion
+
+        #region Interaction with doors
+
+        if (canUseDoor && Input.GetKeyDown(KeyCode.E))
+            actualDoor.Use(-90);
 
         #endregion
     }
@@ -136,6 +148,13 @@ public class Player : PlayerManager
         {
             isNearVehicle = true;
             actualVehicle = other.GetComponentInParent<CarController>();
+            interactionSign.SetActive(true);
+        }
+        if(other.CompareTag("Door"))
+        {
+            canUseDoor = true;
+            actualDoor = other.GetComponentInParent<Door>();
+            interactionSign.SetActive(true);
         }
     }
 
@@ -144,6 +163,12 @@ public class Player : PlayerManager
         if (other.CompareTag("Vehicle"))
         {
             isNearVehicle = false;
+            interactionSign.SetActive(false);
+        }
+        if (other.CompareTag("Door"))
+        {
+            canUseDoor = false;
+            interactionSign.SetActive(false);
         }
     }
 
@@ -164,5 +189,6 @@ public class Player : PlayerManager
         playerCamera.GetComponent<AudioListener>().enabled = !getOn;
         actualVehicle.SendMessage("PlayerInteraction", getOn);
         Shooting.canPlayerChangeWeapon = !getOn;
+        interactionSign.SetActive(!getOn);
     }
 }

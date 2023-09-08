@@ -1,8 +1,6 @@
 using Pathfinding;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(AIPath))]
@@ -16,6 +14,7 @@ public class Enemy : MonoBehaviour
     protected DamagePointer[] ragdollElements = new DamagePointer[11];
     [SerializeField] protected AudioClip damageSound;
     [SerializeField] protected AudioClip deathSound;
+    [HideInInspector] public bool isChecked;
 
     protected AudioSource source;
     protected Animator animator;

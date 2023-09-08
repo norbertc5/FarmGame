@@ -9,6 +9,7 @@ TagManager:
   - Vehicle
   - Bat
   - Scythe
+  - Door
   layers:
   - Default
   - TransparentFX
