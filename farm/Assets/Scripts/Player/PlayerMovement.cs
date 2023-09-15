@@ -9,9 +9,9 @@ public class PlayerMovement : PlayerManager
     [SerializeField] float speed = 10;
     float xInput;
     float yInput;
-    const float DEFAULT_SPEED = 10;
+    const float DEFAULT_SPEED = 7;
     const float RUN_SPEED = 20;
-    const float CROUCH_SPEED = 5;
+    const float CROUCH_SPEED = 3;
     public static bool IsWalking { get; private set; }
     public static bool IsRunning { get; private set; }
     public static bool canMove;
@@ -52,6 +52,7 @@ public class PlayerMovement : PlayerManager
     {
         StartCoroutine(PlayFootstepSounds());
         weaponDefaultPos = shooting.transform.localPosition;
+        speed = DEFAULT_SPEED;
         ChangeMovementPossibility(true);
     }
 

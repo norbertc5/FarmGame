@@ -27,12 +27,14 @@ public class GameManager : MonoBehaviour
     public delegate void Action();
     public Action OnInteractionWithVehicle;
     public Action OnLoudShoot;
+    public Action BushOptymalization;
 
     private void Awake()
     {
         playerSource = GameObject.Find("PlayerSoundSource").GetComponent<AudioSource>();
         volumeProfile.TryGet(out vignette);
         vignette.intensity.value = 0;
+        StartCoroutine(BushOptymalizationRepeating());
     }
 
     private IEnumerator Start()
@@ -94,5 +96,16 @@ public class GameManager : MonoBehaviour
         tutorialBar.GetComponentInChildren<TextMeshProUGUI>().text = text;
         yield return new WaitForSeconds(5);
         helpBarAnim.CrossFade("Hide", 0);
+    }
+
+    /// <summary> Invoke BushOptymalization coroutine in same delays. </summary>
+    IEnumerator BushOptymalizationRepeating()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(5);
+            BushOptymalization?.Invoke();
+            yield return null;
+        }
     }
 }

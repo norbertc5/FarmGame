@@ -880,7 +880,7 @@ Animator:
   m_GameObject: {fileID: 4593006378957114028}
   m_Enabled: 0
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c9f217a95b4b798488e33187444704dd, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -905,6 +905,7 @@ MonoBehaviour:
   health: 1
   damageSound: {fileID: 8300000, guid: b48112c80f5e5f840966149ab8dcf59a, type: 3}
   deathSound: {fileID: 8300000, guid: b48112c80f5e5f840966149ab8dcf59a, type: 3}
+  isChecked: 0
   skeletonObject: {fileID: 5969923020036983490}
 --- !u!114 &3710063558488507546
 MonoBehaviour:

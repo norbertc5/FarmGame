@@ -10,6 +10,7 @@ TagManager:
   - Bat
   - Scythe
   - Door
+  - WateringArea
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - Arm
   - Enemy
   - Obstacle
-  - 
+  - Bush
   - 
   - 
   - 

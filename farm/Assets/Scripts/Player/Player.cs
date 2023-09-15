@@ -29,6 +29,9 @@ public class Player : PlayerManager
     bool canUseDoor;
     Door actualDoor;
 
+    [Header("To quests")]
+    [HideInInspector] public bool isInWateringArea;
+
     private void Awake()
     {
         damageIndicator = FindObjectOfType<DamageIndicator>();
@@ -156,6 +159,8 @@ public class Player : PlayerManager
             actualDoor = other.GetComponentInParent<Door>();
             interactionSign.SetActive(true);
         }
+        if (other.CompareTag("WateringArea"))  // to quest
+            isInWateringArea = true;
     }
 
     private void OnTriggerExit(Collider other)
@@ -170,6 +175,8 @@ public class Player : PlayerManager
             canUseDoor = false;
             interactionSign.SetActive(false);
         }
+        if (other.CompareTag("WateringArea"))
+            isInWateringArea = false;
     }
 
     /// <summary> Make player steering a vehicle and vice versa. </summary>
