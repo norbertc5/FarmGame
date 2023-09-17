@@ -24,7 +24,7 @@ TagManager:
   - Arm
   - Enemy
   - Obstacle
-  - Bush
+  - DontRenderByMainCam
   - 
   - 
   - 

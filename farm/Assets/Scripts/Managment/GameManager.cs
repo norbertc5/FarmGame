@@ -10,7 +10,7 @@ using UnityEngine.Rendering.Universal;
 public class GameManager : MonoBehaviour
 {
     public TextMeshProUGUI infoText;
-    public static AudioSource playerSource;  // playerSource is playerSource to play all sounds related to player
+    public static AudioSource playerSource;  // playerSource is a source to play all sounds related to player
     public const int HEAD_DMG_MULTIPLAYER = 10;
     public const int BODY_DMG_MULTIPLAYER = 5;
     public const int LIMBS_DMG_MULTIPLAYER = 2;
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator Start()
     {
         yield return new WaitForSeconds(2);
-        PlayDialogue("You", "What a beautyful day!", dialogueClip);
+        PlayDialogue("You", "What a beautiful day!", dialogueClip);
         StartCoroutine(ShowTutorialBar("Use wsad to move."));
     }
 

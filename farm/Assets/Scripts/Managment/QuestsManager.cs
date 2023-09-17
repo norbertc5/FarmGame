@@ -15,21 +15,20 @@ public class QuestsManager : MonoBehaviour
     bool areAllCompleted;
 
     [Header("References")]
-    [SerializeField] RectTransform pin;
     [SerializeField] Transform target;
+    [SerializeField] Transform pin;
+    [SerializeField] RotateToTarget directionPin;
     Player player;
 
     private void Awake()
     {
         player = FindObjectOfType<Player>();
         actualQuest = quests[0];
+        UpdateMiniMapPin();
     }
 
     void Update()
     {
-        //pin.LookAt(target);
-        //pin.eulerAngles = new Vector3(0, 0, pin.eulerAngles.y);
-
         switch(actualQuest.questTask)
         {
             case Quest.Tasks.Kill:
@@ -78,6 +77,9 @@ public class QuestsManager : MonoBehaviour
 
         // update task bar in each frame to refresh values
         UpdateTaskBar(quests[actualQuestIndex].taskDescription, killedEnemies, actualQuest.toKill.Length);
+
+        if (actualQuest.isTargetMoving)
+            UpdateMiniMapPin();
     }
 
     /// <summary> Update task bar and optional show values. </summary>
@@ -114,6 +116,13 @@ public class QuestsManager : MonoBehaviour
 
         killedEnemies = 0;
         actualQuest = quests[actualQuestIndex];
+        UpdateMiniMapPin();
+    }
+
+    void UpdateMiniMapPin()
+    {
+        pin.transform.position = actualQuest.pinTrans.position;
+        directionPin.target = actualQuest.pinTrans;
     }
 }
 
@@ -124,9 +133,11 @@ class Quest
     public Tasks questTask;
     public string taskDescription;
     public bool showValuesInDescription;
+    public Transform pinTrans;
 
     [Header("Kill")]
     public Enemy[] toKill;
+    public bool isTargetMoving;  // if true pin on mini map will update in each frame
 
     [Header("WaterPlant")]
     public WateringCan wateringCan;
