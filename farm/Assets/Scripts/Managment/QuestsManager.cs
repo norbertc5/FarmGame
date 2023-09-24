@@ -8,7 +8,8 @@ public class QuestsManager : MonoBehaviour
 {
     [Header("Quests managing")]
     [SerializeField] TextMeshProUGUI taskBarText;
-    [SerializeField] List<Quest> quests;
+    [SerializeField] int dayIndex = 0;
+    [SerializeField] QuestsCollection[] questsCollections;
     int actualQuestIndex;
     Quest actualQuest;
     int killedEnemies;
@@ -23,7 +24,8 @@ public class QuestsManager : MonoBehaviour
     private void Awake()
     {
         player = FindObjectOfType<Player>();
-        actualQuest = quests[0];
+       // questsCollections = FindObjectsOfType<QuestsCollection>();
+        actualQuest = questsCollections[dayIndex].questsForDay[0];
         UpdateMiniMapPin();
     }
 
@@ -76,7 +78,7 @@ public class QuestsManager : MonoBehaviour
         }
 
         // update task bar in each frame to refresh values
-        UpdateTaskBar(quests[actualQuestIndex].taskDescription, killedEnemies, actualQuest.toKill.Length);
+        UpdateTaskBar(actualQuest.taskDescription, killedEnemies, actualQuest.toKill.Length);
 
         if (actualQuest.isTargetMoving)
             UpdateMiniMapPin();
@@ -88,7 +90,7 @@ public class QuestsManager : MonoBehaviour
     /// <param name="targetValue"></param>
     void UpdateTaskBar(string text, int intValue = 0, int targetValue = 0)
     {
-        // stop when all quests completed
+        // stop when all questsCollections completed
         if (areAllCompleted)
         {
             taskBarText.text = "Completed";
@@ -108,14 +110,14 @@ public class QuestsManager : MonoBehaviour
     /// <summary> Make next quest active. </summary>
     void MoveToNextQuest()
     {
-        // don't skip to next quests when all are completed
-        if (actualQuestIndex < quests.Count - 1)
+        // don't skip to next questsCollections when all are completed
+        if (actualQuestIndex < questsCollections[dayIndex].questsForDay.Count - 1)
             actualQuestIndex++;
         else
             areAllCompleted = true;
 
         killedEnemies = 0;
-        actualQuest = quests[actualQuestIndex];
+        actualQuest = questsCollections[dayIndex].questsForDay[actualQuestIndex];
         UpdateMiniMapPin();
     }
 
@@ -127,7 +129,7 @@ public class QuestsManager : MonoBehaviour
 }
 
 [System.Serializable]
-class Quest
+public class Quest
 {
     public enum Tasks { Kill, WaterPlant, PickUp}
     public Tasks questTask;

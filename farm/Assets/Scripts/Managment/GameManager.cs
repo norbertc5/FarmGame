@@ -103,7 +103,7 @@ public class GameManager : MonoBehaviour
     {
         while(true)
         {
-            yield return new WaitForSeconds(5);
+            yield return new WaitForSeconds(1);
             BushOptymalization?.Invoke();
             yield return null;
         }

@@ -28,10 +28,14 @@ public class Bush : MonoBehaviour
     {
         float dist = Vector3.Distance(transform.position, playerTrans.position);
 
-        if (dist < 50 && dist > 10)
-            SetLeavesActive(5);
+        if (dist > 40)
+            SetLeavesActive(10);
+        if(dist < 30 && dist > 20)
+            SetLeavesActive(4);
+        if(dist < 20 && dist > 10)
+            SetLeavesActive(3);
         if (dist < 10)
-            SetLeavesActive(1);
+            SetLeavesActive(2);
     }
 
     /// <summary> Disable all leaves. Next enable every [jump] leaf. </summary>

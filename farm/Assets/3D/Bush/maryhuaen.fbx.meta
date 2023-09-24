@@ -4,35 +4,9 @@ ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable:
   - first:
-      74: 7121645937509464456
-    second: treeArm|windAction
-  - first:
-      74: -4919447057188308497
-    second: treeArm|windAction.001
-  - first:
       74: 8673743163060098169
     second: treeArm|windAction.002
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Leaf
-    second: {fileID: 2100000, guid: e925c1084046f044684399e0c111fdfc, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: 937f9ac7e440bc947aae7dbc3f6fb91f, type: 2}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: marysia
-    second: {fileID: 2800000, guid: bf3deaeea7f365f4da835fff25a99826, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: opacity
-    second: {fileID: 2800000, guid: e9213cf393f8d854b9ac442ffc6b602d, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

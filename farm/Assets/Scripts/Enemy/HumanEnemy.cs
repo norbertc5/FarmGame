@@ -8,6 +8,8 @@ using UnityEngine.Animations.Rigging;
 public class HumanEnemy : Enemy
 {
     [Header("General")]
+    [SerializeField] Material[] mats;
+    [SerializeField] Texture tex;
     bool isFighting;
 
     [Header("References")]
@@ -47,6 +49,8 @@ public class HumanEnemy : Enemy
         player = GetComponent<AIDestinationSetter>().target;
         StartCoroutine(CheckDistance());
         distanceChecker.parent = null;
+        mats = transform.GetChild(0).GetComponent<Renderer>().materials;
+        mats[4].mainTexture = tex;
 
         #region Setting weapon in hands
 
