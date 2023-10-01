@@ -71,7 +71,8 @@ public class GameManager : MonoBehaviour
         sb.Clear();
         // make background for text. To work well is necessary to change the font.
         // In inspector font must be set to the other one which I don't want to use and here it's changes to properly one.
-        sb.Append("<font=LiberationSans SDF - Fallback><mark=#383838>" + s + "</font></mark>");
+        // the font file I'd like to use must be in direction: TextMesh Pro/Resources/Fonts & Materials
+        sb.Append("<font=AlteHaasGroteskRegular SDF><mark=#383838>" + s + "</font></mark>");
         dialogueText.text = sb.ToString();
         StartCoroutine(HideDialogueText(sound.length));
     }

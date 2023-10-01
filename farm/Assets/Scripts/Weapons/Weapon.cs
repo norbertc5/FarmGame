@@ -12,7 +12,7 @@ public class Weapon : MonoBehaviour
     [Range(1, 5)] public int recoil = 2;
     public int crosshairSpreadWhenShoot = 20;
     public int range = 100;
-    public int additionalForceToRagdoll = 1;
+    public float additionalForceForRagdoll = 1;
     public bool isUseable = true;
 
     [Header("Ammo")]

@@ -85,7 +85,7 @@ public class Enemy : MonoBehaviour
     {
         foreach (DamagePointer dp in ragdollElements)
         {
-            dp.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
+            dp.GetComponent<Rigidbody>().AddForce(force);
         }
     }
 

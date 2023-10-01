@@ -2,9 +2,10 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class DamageIndicator : MonoBehaviour
+public class DamageIndicator : RotateToTarget
 {
     CanvasGroup canvasGroup;
+    float elapsedTime = 0;
 
     void Awake()
     {
@@ -17,10 +18,19 @@ public class DamageIndicator : MonoBehaviour
         canvasGroup.alpha = 1;
     }
 
+    private void Update()
+    {
+        // delay for setting target. To prevent indicator 'jumps' between group of enenimes who gave damage to player.
+        if(elapsedTime >= 0)
+            elapsedTime -= Time.deltaTime;
+
+        RotateIndicator();
+    }
+
     /// <summary> Wait some time and smoothly hide indicator. </summary>
     IEnumerator HideWithDelay()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
         while(canvasGroup.alpha >= 0)
         {
             canvasGroup.alpha -= Time.deltaTime;
@@ -30,5 +40,16 @@ public class DamageIndicator : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    /// <summary> Set rotation target for damage indicator. </summary>
+    /// <param name="newTarget"></param>
+    public void SetTarget(Transform newTarget)
+    {
+        if (elapsedTime > 0)
+            return;
+
+        target = newTarget;
+        elapsedTime = 2;
     }
 }

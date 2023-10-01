@@ -16,6 +16,11 @@ public class RotateToTarget : MonoBehaviour
 
     void Update()
     {
+        RotateIndicator();
+    }
+
+    protected void RotateIndicator()
+    {
         // rotating indicator is based on helper rotation
         helper.LookAt(target);
         rectTrans.eulerAngles = new Vector3(0f, 0f, -helper.localEulerAngles.y);

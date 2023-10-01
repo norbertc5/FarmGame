@@ -214,14 +214,8 @@ public class Shooting : MonoBehaviour
                 {
                     Vector3 force = ray.direction;
                     force.Normalize();
-                    enemy.AddForceToRagdoll(force * 10 * actualWeapon.additionalForceToRagdoll);
+                    enemy.AddForceToRagdoll(force * 10 * actualWeapon.additionalForceForRagdoll);
                 }
-
-                /*if(enemy.GetComponent<Cow>())
-                {
-                    enemy.AddForceToRagdoll(new Vector3(0.5f, -1f) * 100 * actualWeapon.additionalForceToRagdoll);
-                }*/
-
             }
 
             #endregion

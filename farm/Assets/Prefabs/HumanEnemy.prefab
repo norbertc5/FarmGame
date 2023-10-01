@@ -255,7 +255,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -394,7 +394,7 @@ CharacterJoint:
     limit: 75.363976
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -519,7 +519,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -687,8 +687,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 48.9, y: 13.29, z: 30.3}
-  m_Center: {x: 0, y: 0, z: 35.6}
+  m_Size: {x: 48.90002, y: 13.29, z: 13.768697}
+  m_Center: {x: 0, y: 0, z: 27.334362}
 --- !u!1 &1298030703826348349
 GameObject:
   m_ObjectHideFlags: 0
@@ -792,7 +792,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -1144,7 +1144,13 @@ MonoBehaviour:
   health: 100
   damageSound: {fileID: 8300000, guid: 9a5c6b1cf928c8b419e93e24caebcd45, type: 3}
   deathSound: {fileID: 8300000, guid: a5453530018813741acad3cc7e5bb16f, type: 3}
+  isChecked: 0
   skeletonObject: {fileID: 24887035492018510}
+  randomTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   distanceChecker: {fileID: 4093783563540300556}
   weaponModel: {fileID: 4899167656339834314}
   shootPoint: {fileID: 2426985693888802085}
@@ -1182,6 +1188,42 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 8690548063535300102}
   - {fileID: 8761316837549630100}
+  skinnedMeshRenderer: {fileID: 489882256717025295}
+  trousers: {fileID: 2100000, guid: 7aa3a8cef059667438d7334281cc41dd, type: 2}
+  boots: {fileID: 2100000, guid: bc8dfbe06bc6e784491b20dd2e098071, type: 2}
+  shirt: {fileID: 2100000, guid: 063134b0b7214ad4999702623784c45b, type: 2}
+  hairMats:
+  - {fileID: 2100000, guid: ca2cadf96274b11418c5feb30a86153d, type: 2}
+  - {fileID: 2100000, guid: e56a01279518aa14790255cce982f3a5, type: 2}
+  - {fileID: 2100000, guid: 44a974ed6c1a7c44f84148f7ae58d32b, type: 2}
+  - {fileID: 2100000, guid: 23e8cd5344aee83498f537dfaabd5901, type: 2}
+  faceMats:
+  - {fileID: 2100000, guid: c79cd7224c5e1dd46a67d025c2384fd8, type: 2}
+  - {fileID: 2100000, guid: 0ff8f7e7373f29649a229eb48e566ef2, type: 2}
+  - {fileID: 2100000, guid: 13deed3cd51fd1d4f929c72479cea1c4, type: 2}
+  - {fileID: 2100000, guid: a293a9f7681ec824691455569b6e53ad, type: 2}
+  - {fileID: 2100000, guid: b9978b68830fe2249a3325bb9b85e6fd, type: 2}
+  - {fileID: 2100000, guid: 8ec9e127746f7304ca67d28b4196bb81, type: 2}
+  - {fileID: 2100000, guid: 75694055b0e2ba140a1e3cda378ac1a0, type: 2}
+  - {fileID: 2100000, guid: 7dfc63fcfb091904ca79a2772fc6de40, type: 2}
+  - {fileID: 2100000, guid: cbd09a704a511884f849f02ed29d7ac9, type: 2}
+  - {fileID: 2100000, guid: c1b159c3965519b458cd240c4f4aa77e, type: 2}
+  skinMats:
+  - {fileID: 2100000, guid: 02d47340629aa934aa9e6ea413a62985, type: 2}
+  - {fileID: 2100000, guid: c72956abbdb130541b161984cd78d4c7, type: 2}
+  - {fileID: 2100000, guid: 6b2ad81768e0cbf4a85af91349dc5c6b, type: 2}
+  - {fileID: 2100000, guid: 6b2ad81768e0cbf4a85af91349dc5c6b, type: 2}
+  - {fileID: 2100000, guid: 51ee1bea3725e21418ab871d688ed4e6, type: 2}
+  - {fileID: 2100000, guid: af3e529c89906cf488185c2466e3b717, type: 2}
+  - {fileID: 2100000, guid: c72956abbdb130541b161984cd78d4c7, type: 2}
+  - {fileID: 2100000, guid: af3e529c89906cf488185c2466e3b717, type: 2}
+  - {fileID: 2100000, guid: 51ee1bea3725e21418ab871d688ed4e6, type: 2}
+  - {fileID: 2100000, guid: af3e529c89906cf488185c2466e3b717, type: 2}
+  hairObjects:
+  - {fileID: 7817206220575277407}
+  - {fileID: 5551690369545347375}
+  - {fileID: 7822402052412262932}
+  - {fileID: 0}
 --- !u!114 &1468360458448714676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1226,7 +1268,7 @@ MonoBehaviour:
   radius: 2
   height: 4.23
   canMove: 1
-  maxSpeed: 5
+  maxSpeed: 7.5
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -1240,12 +1282,12 @@ MonoBehaviour:
     mode: 2
     interval: 0.5
     sensitivity: 10
-    maximumInterval: 2
+    maximumInterval: 1.5
     visualizeSensitivity: 0
   targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
-  slowdownDistance: 0.6
+  slowdownDistance: 10
   pickNextWaypointDist: 2
   endReachedDistance: 2
   alwaysDrawGizmos: 0
@@ -1278,7 +1320,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 3.59
-  m_Radius: 0.16
+  m_Radius: 0.85
   m_SlopeLimit: 45
   m_StepOffset: 0
   m_SkinWidth: 0.08
@@ -1773,7 +1815,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -2454,8 +2496,8 @@ SkinnedMeshRenderer:
   - {fileID: 2100000, guid: 7aa3a8cef059667438d7334281cc41dd, type: 2}
   - {fileID: 2100000, guid: bc8dfbe06bc6e784491b20dd2e098071, type: 2}
   - {fileID: 2100000, guid: 063134b0b7214ad4999702623784c45b, type: 2}
-  - {fileID: 2100000, guid: 02d47340629aa934aa9e6ea413a62985, type: 2}
-  - {fileID: 2100000, guid: c79cd7224c5e1dd46a67d025c2384fd8, type: 2}
+  - {fileID: 2100000, guid: af3e529c89906cf488185c2466e3b717, type: 2}
+  - {fileID: 2100000, guid: c1b159c3965519b458cd240c4f4aa77e, type: 2}
   - {fileID: 2100000, guid: 23e8cd5344aee83498f537dfaabd5901, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -2614,7 +2656,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -2739,7 +2781,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -2864,7 +2906,7 @@ CharacterJoint:
     limit: 75.363976
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity
@@ -3276,7 +3318,7 @@ CharacterJoint:
     limit: 0
     bounciness: 0
     contactDistance: 0
-  m_EnableProjection: 0
+  m_EnableProjection: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_BreakForce: Infinity

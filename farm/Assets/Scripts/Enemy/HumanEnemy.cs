@@ -8,16 +8,16 @@ using UnityEngine.Animations.Rigging;
 public class HumanEnemy : Enemy
 {
     [Header("General")]
-    [SerializeField] Material[] mats;
-    [SerializeField] Texture tex;
+    [SerializeField] Transform[] randomTargets;
     bool isFighting;
+    Coroutine shootingCoroutine;
+    float meleeDamageCooldown;
 
     [Header("References")]
     [SerializeField] Transform distanceChecker;
     [SerializeField] GameObject weaponModel;
     [SerializeField] Transform shootPoint;
-    Coroutine shootingCoroutine;
-
+    DamageIndicator damageIndicator;
 
     [Header("Weapon - data")]
     [SerializeField] WeaponTypes weaponType;
@@ -40,21 +40,55 @@ public class HumanEnemy : Enemy
     [SerializeField] Transform[] leftArmIKTargets;
     [SerializeField] Transform[] leftArmIKHints;
 
-    float meleeDamageCooldown;
+    [Header("Apperance")]
+    [SerializeField] SkinnedMeshRenderer skinnedMeshRenderer;
+
+    // all materials are necessary to set up random ones correctly
+    [SerializeField] Material trousers;
+    [SerializeField] Material boots;
+    [SerializeField] Material shirt;
+    [SerializeField] Material[] hairMats;
+    // random materials
+    [SerializeField] Material[] faceMats;
+    [SerializeField] Material[] skinMats;
+    [SerializeField] GameObject[] hairObjects;
 
     void Awake()
     {
         AssignComponents();
-        GetComponent<AIDestinationSetter>().target = GameObject.FindGameObjectWithTag("Player").transform;
-        player = GetComponent<AIDestinationSetter>().target;
+        player = GameObject.FindGameObjectWithTag("Player").transform;
         StartCoroutine(CheckDistance());
         distanceChecker.parent = null;
-        mats = transform.GetChild(0).GetComponent<Renderer>().materials;
-        mats[4].mainTexture = tex;
+        damageIndicator = FindObjectOfType<DamageIndicator>();
+
+        #region Setting pathfinding target
+
+        Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
+        for (int i = 0; i < randTargetsParent.childCount; i++)  // setting up randomTargets[]
+            randomTargets[i] = randTargetsParent.GetChild(i);
+
+        GetComponent<AIDestinationSetter>().target = randomTargets[Random.Range(0, randomTargets.Length)];
+
+        #endregion
+
+        #region Setting up materials
+
+        int faceIndex = Random.Range(0, faceMats.Length);
+        int hairIndex = Random.Range(0, hairMats.Length);
+        Material[] m = new Material[] {trousers, boots, shirt, skinMats[faceIndex], faceMats[faceIndex], hairMats[hairIndex] };
+        skinnedMeshRenderer.materials = m;
+        try { hairObjects[Random.Range(0, hairObjects.Length)].SetActive(true); } catch { }
+
+        for (int i = 0; i < hairObjects.Length; i++)
+        {
+            try { hairObjects[i].GetComponent<SkinnedMeshRenderer>().materials = new Material[] { hairMats[hairIndex] }; } catch { }
+        }
+
+        #endregion
 
         #region Setting weapon in hands
 
-        switch(weaponType)
+        switch (weaponType)
         {
             case WeaponTypes.Pisol: weaponIndex = 0; break;
             case WeaponTypes.Rifle: weaponIndex = 1; break;
@@ -73,7 +107,7 @@ public class HumanEnemy : Enemy
     private void Update()
     {
         // make enemy looks at player while shooting
-        if (isFighting && !isDeath)
+        if (/*isFighting && !isDeath*/ !pathfinding.enabled && !isDeath)
         {
             transform.LookAt(player);
             // don't rotate in x axis because it looks weird
@@ -116,6 +150,7 @@ public class HumanEnemy : Enemy
         {
             if(!isDeath)
             {
+                GetComponent<CharacterController>().enabled = false;
                 int randomNum = Random.Range(1, 6);
                 if(randomNum <= 3)
                 {
@@ -131,9 +166,9 @@ public class HumanEnemy : Enemy
                 SetRagdollActive(false);
                 animator.enabled = false;
                 pathfinding.enabled = false;
-                GetComponent<CharacterController>().enabled = false;
                 SetRagdollActive(true);
                 StopAllCoroutines();
+                transform.Find("ViewRange").gameObject.SetActive(false);
 
                 // turn off weapon models
                 foreach(GameObject weaponModel in weaponsModels)
@@ -173,8 +208,8 @@ public class HumanEnemy : Enemy
     {
         while(true)
         {
-            if(IsPlayerBehindWall())
-                StartCoroutine(ChangeBehaviourIfSeePlayer(false));
+            //if(IsPlayerBehindWall())
+              //  StartCoroutine(ChangeBehaviourIfSeePlayer(false));
 
             yield return new WaitForSeconds(Random.Range(0.2f, 0.7f));
             int howManyShoots = Random.Range(1, 10);
@@ -197,16 +232,17 @@ public class HumanEnemy : Enemy
                         {
                             int randomNumber = Random.Range(1, 6);
                             int actualDamage = damages[weaponIndex];
+                            damageIndicator.SetTarget(transform);
 
                             // damage to player isn't based on ray's hit
                             // it works on random
                             Player playerScript = player.GetComponent<Player>();
                             if (randomNumber == 1)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER / 3 * 0);
                             else if (randomNumber > 1 && randomNumber <= 3)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER / 3 * 0);
                             else if (randomNumber > 3 && randomNumber <= 5)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER / 3 * 0);
                         }
                     }
                     catch { }
@@ -230,9 +266,12 @@ public class HumanEnemy : Enemy
         yield return new WaitForSeconds(0.2f);  // to avoid glitch
         if (canSeePlayer && !IsPlayerBehindWall())
         {
-            pathfinding.enabled = false;
+            if (Vector3.Distance(transform.position, player.position) < 10)
+                pathfinding.enabled = false;
+            else
+                pathfinding.enabled = true;
 
-            if(shootingCoroutine == null)
+            if (shootingCoroutine == null)
                 shootingCoroutine = StartCoroutine(Shooting());
         }
         else
