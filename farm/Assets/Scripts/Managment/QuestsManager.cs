@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -98,11 +98,12 @@ public class QuestsManager : MonoBehaviour
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.Append(text);
 
         // show values (e.g "2/5") only if needed
         if (actualQuest.showValuesInDescription)
-            sb.Append(" " + intValue.ToString() + "/" + targetValue);
+            text += " " + intValue.ToString() + "/" + targetValue;
+
+        sb.Append("<font=AlteHaasGroteskRegular SDF><mark=#38383880>" + " " + text + " ‎" + "</font></mark>");
 
         taskBarText.text = sb.ToString();
     }

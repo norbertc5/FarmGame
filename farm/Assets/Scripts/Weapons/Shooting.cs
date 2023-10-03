@@ -215,6 +215,8 @@ public class Shooting : MonoBehaviour
                     Vector3 force = ray.direction;
                     force.Normalize();
                     enemy.AddForceToRagdoll(force * 10 * actualWeapon.additionalForceForRagdoll);
+                    // push body pary which was hited
+                    hit.collider.GetComponent<Rigidbody>().AddForce(force * 50 * actualWeapon.additionalForceForRagdoll, ForceMode.Impulse);
                 }
             }
 

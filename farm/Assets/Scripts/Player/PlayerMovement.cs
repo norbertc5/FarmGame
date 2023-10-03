@@ -23,7 +23,7 @@ public class PlayerMovement : PlayerManager
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] float groundCheckRadius = 0.6f;
-    float gravity = -10;
+    const float GRAVITY = -10;
     public bool IsGrounded { get; private set; }
     Vector3 velocity;
     const float DEFAULT_Y_VELOCITY = -2;
@@ -91,7 +91,7 @@ public class PlayerMovement : PlayerManager
 
             if (Input.GetKeyDown(KeyCode.Space) && IsGrounded && !IsCrouching && !isUnderCeiling)
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * gravity);
+                velocity.y = Mathf.Sqrt(jumpHeight * DEFAULT_Y_VELOCITY * GRAVITY);
                 playerSource.PlayOneShot(jumpSound);
                 Crosshair.spread += Crosshair.JUMP_SPREAD;
             }
@@ -109,7 +109,7 @@ public class PlayerMovement : PlayerManager
         #region Gravity
 
         // gravity from rigidbody does not work with character controller
-        velocity.y += gravity * mass * Time.deltaTime;
+        velocity.y += GRAVITY * mass * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
 
         // when Player is on the ground, velocity restarts

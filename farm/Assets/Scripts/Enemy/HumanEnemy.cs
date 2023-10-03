@@ -12,6 +12,7 @@ public class HumanEnemy : Enemy
     bool isFighting;
     Coroutine shootingCoroutine;
     float meleeDamageCooldown;
+    Vector3 velocity;
 
     [Header("References")]
     [SerializeField] Transform distanceChecker;
@@ -60,10 +61,11 @@ public class HumanEnemy : Enemy
         StartCoroutine(CheckDistance());
         distanceChecker.parent = null;
         damageIndicator = FindObjectOfType<DamageIndicator>();
+        //GetComponent<CharacterController>().material = noFriction;
 
         #region Setting pathfinding target
 
-        Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
+Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
         for (int i = 0; i < randTargetsParent.childCount; i++)  // setting up randomTargets[]
             randomTargets[i] = randTargetsParent.GetChild(i);
 
@@ -107,7 +109,7 @@ public class HumanEnemy : Enemy
     private void Update()
     {
         // make enemy looks at player while shooting
-        if (/*isFighting && !isDeath*/ !pathfinding.enabled && !isDeath)
+        if (!pathfinding.enabled && !isDeath)
         {
             transform.LookAt(player);
             // don't rotate in x axis because it looks weird
@@ -163,12 +165,12 @@ public class HumanEnemy : Enemy
                     heartObject.transform.position = skeletonObject.transform.position;  // drop heart
                 }
 
+                transform.GetChild(7).gameObject.SetActive(false);
                 SetRagdollActive(false);
                 animator.enabled = false;
                 pathfinding.enabled = false;
                 SetRagdollActive(true);
                 StopAllCoroutines();
-                transform.Find("ViewRange").gameObject.SetActive(false);
 
                 // turn off weapon models
                 foreach(GameObject weaponModel in weaponsModels)
@@ -298,4 +300,10 @@ public class HumanEnemy : Enemy
         else
             return true;
     }
+
+   /* private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ignore Raycast"))
+            Debug.Log("dupa");
+    }*/
 }
