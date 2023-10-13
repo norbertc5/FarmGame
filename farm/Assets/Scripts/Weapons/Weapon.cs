@@ -1,3 +1,4 @@
+using FirstGearGames.SmoothCameraShaker;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,6 +35,7 @@ public class Weapon : MonoBehaviour
 
     [Header("References")]
     public Transform flashTrasform;
+    public ShakeData shootShake;
     [Tooltip("Animator for second hand while reloading.")]
     public Animator additinonalReloadingAnim;
 

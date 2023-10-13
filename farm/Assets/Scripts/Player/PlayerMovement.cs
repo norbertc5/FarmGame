@@ -30,6 +30,7 @@ public class PlayerMovement : PlayerManager
 
     [Header("Crouch")]
     [SerializeField] Transform ceilingCheck;
+    [SerializeField] float ceilingCheckRadius = 1;
     [SerializeField] LayerMask ceilingLayer;
     bool isUnderCeiling;
     public static bool IsCrouching { get; private set; }
@@ -49,13 +50,16 @@ public class PlayerMovement : PlayerManager
     bool hasPlayedLandSoundPlayed;
     Coroutine landSoundCoroutine;
 
-    [Header("Stamina")]
-    [SerializeField] float playerStamina = 100;
-    [SerializeField] int staminaLosingSpeed = 1;
-    [SerializeField] Image staminaBar;
-    [SerializeField] Color staminaBarDefaultColor;
-    [SerializeField] Color staminaBarRenewalingColor;
-    bool isStaminaRenewaling;
+    Stamina stamina;
+
+    //[Header("Stamina")]
+    //[SerializeField] float playerStamina = 100;
+    //[SerializeField] int staminaLosingSpeed = 1;
+    //[SerializeField] Image staminaBar;
+    //[SerializeField] Color staminaBarDefaultColor;
+    //[SerializeField] Color staminaBarRenewalingColor;
+    //[SerializeField] AudioClip pantSound;
+    //bool isStaminaRenewaling;
 
     private void Start()
     {
@@ -63,7 +67,8 @@ public class PlayerMovement : PlayerManager
         weaponDefaultPos = shooting.transform.localPosition;
         speed = DEFAULT_SPEED;
         ChangeMovementPossibility(true);
-        staminaBar.color = staminaBarDefaultColor;
+        stamina = GetComponent<Stamina>();
+        //staminaBar.color = staminaBarDefaultColor;
     }
 
     void Update()
@@ -121,46 +126,19 @@ public class PlayerMovement : PlayerManager
         #region Run
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && IsGrounded && !IsCrouching && (xInput != 0 || yInput != 0) &&
-                playerStamina > 0 && !isStaminaRenewaling)
+                stamina.playerStamina > 0 && !stamina.isStaminaRenewaling)
         {
             speed = RUN_SPEED;
             IsWalking = false;
             IsRunning = true;
             Crosshair.baseSpread = Crosshair.RUN_SPREAD;
         }
-        if (Input.GetKeyUp(KeyCode.LeftShift) || playerStamina <= 0)
+        if (Input.GetKeyUp(KeyCode.LeftShift) || stamina.playerStamina <= 0)
         {
             speed = DEFAULT_SPEED;
             IsRunning = false;
             Crosshair.baseSpread = Crosshair.WALK_SPREAD;
         }
-
-        #region Stamina
-
-        // counting stamina
-        if (IsRunning)
-            playerStamina -= Time.deltaTime * staminaLosingSpeed;
-        else
-            playerStamina += Time.deltaTime * staminaLosingSpeed / 2;
-
-        // if no stamina, player has to wait until it renewal
-        if (playerStamina <= 0)
-        {
-            staminaBar.color = staminaBarRenewalingColor;
-            isStaminaRenewaling = true;
-        }
-
-        if (playerStamina >= 100 && isStaminaRenewaling)
-        {
-            staminaBar.color = staminaBarDefaultColor;
-            isStaminaRenewaling = false;
-        }
-
-
-        staminaBar.fillAmount = playerStamina / 100;
-        playerStamina = Mathf.Clamp(playerStamina, 0, 100);
-
-        #endregion
 
         #endregion
 
@@ -216,7 +194,7 @@ public class PlayerMovement : PlayerManager
 
     private void FixedUpdate()
     {
-        isUnderCeiling = Physics.CheckSphere(ceilingCheck.position, 1, ceilingLayer);
+        isUnderCeiling = Physics.CheckSphere(ceilingCheck.position, ceilingCheckRadius, ceilingLayer);
         IsGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
     }
 

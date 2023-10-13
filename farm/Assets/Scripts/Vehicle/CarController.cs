@@ -3,33 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using static Unity.Burst.Intrinsics.Arm;
+using TMPro;
 
-[System.Serializable]
-public class AxleInfo
+public class CarController : Car
 {
-    public WheelCollider leftWheel;
-    public WheelCollider rightWheel;
-    public bool motor;
-    public bool steering;
-}
-
-public class CarController : MonoBehaviour
-{
-    // script taken from Unity web page
-    [Header("Settings")]
-    [SerializeField] List<AxleInfo> axleInfos;
-    [SerializeField] float maxMotorTorque;
-    [SerializeField] float maxSteeringAngle;
-    [Header("Wheels meshes")]
-    [SerializeField] Transform frontLeftWheel;
-    [SerializeField] Transform frontRightWheel;
-    [SerializeField] Transform rearLeftWheel;
-    [SerializeField] Transform rearRightWheel;
     [Header("Other objects")]
-    [SerializeField] Transform centerOfMass;
     [SerializeField] Transform cameraTransform;
     [SerializeField] GameObject humanObject;
     public Transform playerGetOffTrans;
+    [SerializeField] TextMeshProUGUI tractorTutorialText;
     [Header("Sounds")]
     [SerializeField] AudioClip engineStartSound;
     [SerializeField] AudioClip engineStopSound;
@@ -38,12 +20,14 @@ public class CarController : MonoBehaviour
 
     private void Awake()
     {
-        GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
         source = GetComponent<AudioSource>();
+        SetCenterOfMass();
+        tractorTutorialText.text = GameManager.MarkText(tractorTutorialText.text, "38383880");
     }
 
     private void Update()
     {
+        RotateWheelsMeshes();
         float verticalInput = Input.GetAxis("Vertical");
 
         // slowing down when no vertical input
@@ -65,22 +49,6 @@ public class CarController : MonoBehaviour
             axleInfos[1].rightWheel.brakeTorque = 20000;
         }
 
-        #region Wheels visual effects
-
-        // rotating steering wheels according to drive direction
-        frontLeftWheel.localEulerAngles = new Vector3
-            (frontLeftWheel.localEulerAngles.x, axleInfos[0].leftWheel.steerAngle - 90, frontLeftWheel.localEulerAngles.z);
-        frontRightWheel.localEulerAngles = new Vector3
-            (frontRightWheel.localEulerAngles.x, axleInfos[0].rightWheel.steerAngle - 90, frontRightWheel.localEulerAngles.z);
-
-        // rotating wheels around their own axis
-        frontLeftWheel.Rotate(0, 0, axleInfos[0].leftWheel.rpm / 60 * -360 * Time.deltaTime);
-        frontRightWheel.Rotate(0, 0, axleInfos[0].rightWheel.rpm / 60 * -360 * Time.deltaTime);
-        rearLeftWheel.Rotate(0, 0, axleInfos[1].leftWheel.rpm / 60 * -360 * Time.deltaTime);
-        rearRightWheel.Rotate(0, 0, axleInfos[1].rightWheel.rpm / 60 * -360 * Time.deltaTime);
-
-        #endregion
-
         #region Vehicle sound
 
         // change pitch to simulate engine work
@@ -98,23 +66,7 @@ public class CarController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        // steering vehicle
-        float motor = maxMotorTorque * Input.GetAxis("Vertical");
-        float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
-
-        foreach (AxleInfo axleInfo in axleInfos)
-        {
-            if (axleInfo.steering)
-            {
-                axleInfo.leftWheel.steerAngle = steering;
-                axleInfo.rightWheel.steerAngle = steering;
-            }
-            if (axleInfo.motor)
-            {
-                axleInfo.leftWheel.motorTorque = motor;
-                axleInfo.rightWheel.motorTorque = motor;
-            }
-        }
+        Drive(maxMotorTorque * Input.GetAxis("Vertical"), maxSteeringAngle * Input.GetAxis("Horizontal"));
     }
 
     /// <summary> Set all things needed to drive. </summary>
@@ -125,13 +77,13 @@ public class CarController : MonoBehaviour
         transform.Find("Camera").gameObject.SetActive(getOn);
         humanObject.SetActive(getOn);
         GetComponent<Rigidbody>().isKinematic = !getOn;
+        tractorTutorialText.gameObject.SetActive(getOn);
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
 
         if (getOn)
             StartCoroutine(PlayEngineStartSound());
         else
-        {
             StartCoroutine(PlayEngineStopSound());
-        }
     }
 
     IEnumerator PlayEngineStartSound()

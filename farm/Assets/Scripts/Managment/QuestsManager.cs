@@ -24,7 +24,6 @@ public class QuestsManager : MonoBehaviour
     private void Awake()
     {
         player = FindObjectOfType<Player>();
-       // questsCollections = FindObjectsOfType<QuestsCollection>();
         actualQuest = questsCollections[dayIndex].questsForDay[0];
         UpdateMiniMapPin();
     }
@@ -75,6 +74,14 @@ public class QuestsManager : MonoBehaviour
 
                 #endregion
                 break;
+            case Quest.Tasks.UseVehicle:
+                #region Using vehicle.
+
+                if (player.actualVehicle == actualQuest.vehicleToUse && player.CheckIfPlayerInVehicle())
+                    MoveToNextQuest();
+
+                #endregion
+                break;
         }
 
         // update task bar in each frame to refresh values
@@ -103,9 +110,8 @@ public class QuestsManager : MonoBehaviour
         if (actualQuest.showValuesInDescription)
             text += " " + intValue.ToString() + "/" + targetValue;
 
-        sb.Append("<font=AlteHaasGroteskRegular SDF><mark=#38383880>" + " " + text + " ‎" + "</font></mark>");
-
-        taskBarText.text = sb.ToString();
+        sb.Append(text + " ‎");
+        taskBarText.text = GameManager.MarkText(sb.ToString(), "38383880");
     }
 
     /// <summary> Make next quest active. </summary>
@@ -132,7 +138,7 @@ public class QuestsManager : MonoBehaviour
 [System.Serializable]
 public class Quest
 {
-    public enum Tasks { Kill, WaterPlant, PickUp}
+    public enum Tasks { Kill, WaterPlant, PickUp, UseVehicle}
     public Tasks questTask;
     public string taskDescription;
     public bool showValuesInDescription;
@@ -148,4 +154,7 @@ public class Quest
 
     [Header("PickUp")]
     public ObjectToTake objectToTake;
+
+    [Header("UseVehicle")]
+    public CarController vehicleToUse;
 }

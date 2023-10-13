@@ -24,4 +24,9 @@ public class PlayerManager : MonoBehaviour
         crosshair = FindObjectOfType<Crosshair>();
         playerCamera = GameObject.Find("PlayerCam").GetComponent<Camera>();
     }
+
+    public bool CheckIfPlayerInVehicle()
+    {
+        return isPlayerInVehicle;
+    }
 }

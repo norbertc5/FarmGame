@@ -1,3 +1,4 @@
+using FirstGearGames.SmoothCameraShaker;
 using System;
 using System.Collections;
 using TMPro;
@@ -125,6 +126,10 @@ public class Shooting : MonoBehaviour
 
             if (canShoot && actualWeapon.ammoInMagazine > 0)
             {
+                // camera shakes
+                if(!PlayerMovement.IsCrouching)
+                    CameraShakerHandler.Shake(actualWeapon.shootShake);
+
                 // create suitable amount of rays
                 for (int i = 0; i < actualWeapon.raysAmount; i++)
                 {

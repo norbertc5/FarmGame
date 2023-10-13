@@ -472,8 +472,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eed2bbca1b81844fad4a6447437f592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playertTrans: {fileID: 959124262}
-  targetTrans: {fileID: 957447122}
+  target: {fileID: 0}
   helper: {fileID: 1100721856}
 --- !u!225 &73491679
 CanvasGroup:
@@ -2106,7 +2105,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: f6dca97385eb9754e8794e87366753e2, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f6dca97385eb9754e8794e87366753e2, type: 3}
       propertyPath: m_LocalScale.x
@@ -2727,7 +2726,7 @@ MonoBehaviour:
   recoil: 5
   crosshairSpreadWhenShoot: 100
   range: 100
-  additionalForceToRagdoll: 1
+  additionalForceForRagdoll: 1
   isUseable: 1
   magazineCapacity: 4
   ammoAmount: 5
@@ -2740,6 +2739,7 @@ MonoBehaviour:
   additionalDelayForRay: 0
   shootSound: {fileID: 8300000, guid: 4e5d89d67f1f96446881ce183caf491e, type: 3}
   flashTrasform: {fileID: 180281586}
+  shootShake: {fileID: 0}
   additinonalReloadingAnim: {fileID: 0}
 --- !u!1 &347823443
 GameObject:
@@ -6411,7 +6411,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -7887,7 +7887,7 @@ MonoBehaviour:
   recoil: 2
   crosshairSpreadWhenShoot: 20
   range: 100
-  additionalForceToRagdoll: 1
+  additionalForceForRagdoll: 1
   isUseable: 1
   magazineCapacity: 3352
   ammoAmount: 10
@@ -7900,6 +7900,7 @@ MonoBehaviour:
   additionalDelayForRay: 0
   shootSound: {fileID: 8300000, guid: 5af6ed85ef7f96f4584b2eef775f3172, type: 3}
   flashTrasform: {fileID: 1908825204}
+  shootShake: {fileID: 0}
   additinonalReloadingAnim: {fileID: 1084184548}
 --- !u!1 &906855027
 GameObject:
@@ -9920,11 +9921,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.022473, y: 0.0020404}
   m_SizeDelta: {x: 1025.9, y: 570.17}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!4 &957447122 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8761316839117905269, guid: 15f41ac3533fa99469397cb73156b9de, type: 3}
-  m_PrefabInstance: {fileID: 8761316838732998311}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &959124256
 GameObject:
   m_ObjectHideFlags: 0
@@ -10155,6 +10151,7 @@ MonoBehaviour:
     m_Bits: 2163
   groundCheckRadius: 0.4
   ceilingCheck: {fileID: 1052248739}
+  ceilingCheckRadius: 0.5
   ceilingLayer:
     serializedVersion: 2
     m_Bits: 2099
@@ -10165,6 +10162,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e9714160ce34f2b4ab63ff8c27bd68e1, type: 3}
   jumpSound: {fileID: 8300000, guid: 5897aeed9b676024fbb8c694b421a861, type: 3}
   landSound: {fileID: 8300000, guid: 3b09d59f4499d45428baa7a21e954296, type: 3}
+  playerStamina: 100
+  staminaLosingSpeed: 1
+  staminaBar: {fileID: 0}
+  staminaBarDefaultColor: {r: 0, g: 0, b: 0, a: 0}
+  staminaBarRenewalingColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &959124265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10182,6 +10184,8 @@ MonoBehaviour:
   healthBar: {fileID: 387165023}
   playerDamageSound: {fileID: 8300000, guid: cfb01ca1c67f8a340b1bbf46ee730206, type: 3}
   playerHealSound: {fileID: 8300000, guid: 18ff66fde228aa948984932d79450d4a, type: 3}
+  interactionSign: {fileID: 0}
+  isInWateringArea: 0
 --- !u!95 &959124266
 Animator:
   serializedVersion: 4
@@ -12912,7 +12916,7 @@ MonoBehaviour:
   recoil: 1
   crosshairSpreadWhenShoot: 10
   range: 100
-  additionalForceToRagdoll: 1
+  additionalForceForRagdoll: 1
   isUseable: 1
   magazineCapacity: 8
   ammoAmount: 0
@@ -12925,6 +12929,7 @@ MonoBehaviour:
   additionalDelayForRay: 0
   shootSound: {fileID: 8300000, guid: 354f2fd45ae74f1499b9cbe755c2dfcd, type: 3}
   flashTrasform: {fileID: 2046206322}
+  shootShake: {fileID: 0}
   additinonalReloadingAnim: {fileID: 0}
 --- !u!1 &1270056954 stripped
 GameObject:
@@ -13499,7 +13504,7 @@ MonoBehaviour:
   recoil: 1
   crosshairSpreadWhenShoot: 20
   range: 3
-  additionalForceToRagdoll: 10
+  additionalForceForRagdoll: 1
   isUseable: 1
   magazineCapacity: 100
   ammoAmount: 94
@@ -13512,6 +13517,7 @@ MonoBehaviour:
   additionalDelayForRay: 0.4
   shootSound: {fileID: 8300000, guid: f6f8791b399df5543950fd5837821f1a, type: 3}
   flashTrasform: {fileID: 0}
+  shootShake: {fileID: 0}
   additinonalReloadingAnim: {fileID: 0}
 --- !u!1001 &1351473568
 PrefabInstance:
@@ -15046,6 +15052,10 @@ MonoBehaviour:
   infoText: {fileID: 2118386244}
   volumeProfile: {fileID: 11400000, guid: 3e7ed36b5b26f26448d174eae9a900ea, type: 2}
   vignette: {fileID: 0}
+  dialogueText: {fileID: 0}
+  dialogueClip: {fileID: 0}
+  dialogueSource: {fileID: 0}
+  tutorialBar: {fileID: 0}
 --- !u!114 &1489464784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18106,7 +18116,7 @@ MonoBehaviour:
   recoil: 2
   crosshairSpreadWhenShoot: 20
   range: 100
-  additionalForceToRagdoll: 0
+  additionalForceForRagdoll: 1
   isUseable: 1
   magazineCapacity: 0
   ammoAmount: 0
@@ -18119,6 +18129,7 @@ MonoBehaviour:
   additionalDelayForRay: 0
   shootSound: {fileID: 0}
   flashTrasform: {fileID: 0}
+  shootShake: {fileID: 0}
   additinonalReloadingAnim: {fileID: 0}
 --- !u!4 &1914709977 stripped
 Transform:
@@ -21146,7 +21157,7 @@ PrefabInstance:
       objectReference: {fileID: 959124262}
     - target: {fileID: 8761316839117905269, guid: 15f41ac3533fa99469397cb73156b9de, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8761316839117905269, guid: 15f41ac3533fa99469397cb73156b9de, type: 3}
       propertyPath: m_LocalPosition.x

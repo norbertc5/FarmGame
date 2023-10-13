@@ -17,8 +17,8 @@ public class Player : PlayerManager
     [SerializeField] AudioClip playerHealSound;
 
     [Header("Vehicle")]
+    public CarController actualVehicle;
     bool isNearVehicle;
-    CarController actualVehicle;
 
     [Header("References")]
     [SerializeField] GameObject interactionSign;
@@ -54,6 +54,12 @@ public class Player : PlayerManager
         // get off vehicle
         if(isPlayerInVehicle && Input.GetKeyDown(KeyCode.E))
             StartCoroutine(VehicleInteraction(false));
+        
+        if (isPlayerInVehicle)
+        {
+            transform.position = actualVehicle.transform.position;
+            transform.rotation = actualVehicle.transform.rotation;
+        }
 
         #endregion
 
@@ -186,6 +192,7 @@ public class Player : PlayerManager
         yield return new WaitForSeconds(0.2f);  // delay is needed to avoid glitch
         gameManager.OnInteractionWithVehicle?.Invoke();
         transform.position = actualVehicle.playerGetOffTrans.position;
+        transform.rotation = Quaternion.identity;
         isPlayerInVehicle = getOn;
         PlayerMovement.ChangeMovementPossibility(!getOn);
         actualVehicle.enabled = getOn;
@@ -197,5 +204,6 @@ public class Player : PlayerManager
         actualVehicle.SendMessage("PlayerInteraction", getOn);
         Shooting.canPlayerChangeWeapon = !getOn;
         interactionSign.SetActive(!getOn);
+        shooting.enabled = !getOn;
     }
 }

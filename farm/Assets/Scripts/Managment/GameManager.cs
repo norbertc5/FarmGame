@@ -72,8 +72,9 @@ public class GameManager : MonoBehaviour
         // make background for text. To work well is necessary to change the font.
         // In inspector font must be set to the other one which I don't want to use and here it's changes to properly one.
         // the font file I'd like to use must be in direction: TextMesh Pro/Resources/Fonts & Materials
-        sb.Append("<font=AlteHaasGroteskRegular SDF><mark=#383838>" + s + "</font></mark>");
-        dialogueText.text = sb.ToString();
+        sb.Append(s);
+        dialogueText.text = MarkText(sb.ToString(), "383838");
+        //dialogueText.text = sb.ToString();
         StartCoroutine(HideDialogueText(sound.length));
     }
 
@@ -108,5 +109,16 @@ public class GameManager : MonoBehaviour
             BushOptymalization?.Invoke();
             yield return null;
         }
+    }
+
+    /// <summary> Add mark to text given in argument, with color given in argument. </summary>
+    /// <param name="text"></param>
+    /// <param name="hexBgColorCode"></param>
+    /// <returns> Marked string. </returns>
+    public static string MarkText(string text, string hexBgColorCode)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"<font=AlteHaasGroteskRegular SDF><mark=#{hexBgColorCode}> {text} </font></mark>");
+        return sb.ToString();
     }
 }
