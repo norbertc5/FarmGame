@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using static Unity.Burst.Intrinsics.Arm;
 using TMPro;
+using Cinemachine;
 
 public class CarController : Car
 {
@@ -12,6 +13,7 @@ public class CarController : Car
     [SerializeField] GameObject humanObject;
     public Transform playerGetOffTrans;
     [SerializeField] TextMeshProUGUI tractorTutorialText;
+    [SerializeField] GameObject getOnTrigger;
     [Header("Sounds")]
     [SerializeField] AudioClip engineStartSound;
     [SerializeField] AudioClip engineStopSound;
@@ -74,11 +76,12 @@ public class CarController : Car
     void PlayerInteraction(bool getOn)
     {
         // invoke when player get off/on vehicle
-        transform.Find("Camera").gameObject.SetActive(getOn);
+        cameraTransform.gameObject.SetActive(getOn);
         humanObject.SetActive(getOn);
         GetComponent<Rigidbody>().isKinematic = !getOn;
         tractorTutorialText.gameObject.SetActive(getOn);
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+        getOnTrigger.SetActive(!getOn);
 
         if (getOn)
             StartCoroutine(PlayEngineStartSound());

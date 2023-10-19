@@ -11,6 +11,8 @@ TagManager:
   - Scythe
   - Door
   - WateringArea
+  - RaceCheckpoint
+  - LapCheck
   layers:
   - Default
   - TransparentFX

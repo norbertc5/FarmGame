@@ -436,6 +436,8 @@
 "Assets/Scripts/Player/PlayerManager.cs"
 "Assets/Scripts/Player/PlayerMovement.cs"
 "Assets/Scripts/Player/Stamina.cs"
+"Assets/Scripts/RaceCollisionForAllCars.cs"
+"Assets/Scripts/RaceManager.cs"
 "Assets/Scripts/ScriptableObjects/ObjectsPool.cs"
 "Assets/Scripts/UI/Crosshair.cs"
 "Assets/Scripts/UI/DamageIndicator.cs"
