@@ -8,40 +8,40 @@ public class RaceCollisionForAllCars : MonoBehaviour
     // this class is response for detecting collisions with checkpoints during race
 
     public int Lap { get; private set; }
+    public int TotalCrosses { get; private set; }
     RaceManager raceManager;
-    int crossedCheckpointsAmount;
     Car thisCar;
+    [SerializeField] List<GameObject> crossedCheckpoints;
+    int crossedCheckpointsAmount;
 
     private void Awake()
     {
         raceManager = FindObjectOfType<RaceManager>();
         thisCar = GetComponent<Car>();
+        Lap = 1;
     }
 
     protected void OnTriggerEnter(Collider other)
     {
-        // when the winning car reach a checkpoint
-        if (other.CompareTag("RaceCheckpoint") && Array.IndexOf(raceManager.carsInWiningOrder, thisCar) == 0)
+        // when reach a checkpoint
+        if (other.CompareTag("RaceCheckpoint"))
         {
-            raceManager.SetNewCheckpoint();
-            other.tag = "LapCheck";  // change tag of checkpoint to make it impossible to set new checkpoint by each car
-        }
+            // if it's winning car, SetNewCheckpoint() 
+            if (Array.IndexOf(raceManager.carsInWiningOrder, thisCar) == 0)
+                raceManager.SetNewCheckpoint(crossedCheckpointsAmount + 1);
 
-        if (other.CompareTag("LapCheck"))
-        {
             crossedCheckpointsAmount++;
+            TotalCrosses++;
 
             // if the car has crossed all checkpoints, it means that one lap has been finished
-            if (crossedCheckpointsAmount == raceManager.checkpoints.Length)
+            if (crossedCheckpointsAmount == raceManager.checkpoints.Length + 1)
             {
                 Lap++;
-                crossedCheckpointsAmount = 0;
-
-                foreach (Transform checkpoint in raceManager.checkpoints)
-                {
-                    checkpoint.tag = "RaceCheckpoint";
-                }
+                crossedCheckpointsAmount = 1;
+                crossedCheckpoints.Clear();
             }
+
+            crossedCheckpoints.Add(other.gameObject);
         }
     }
 }

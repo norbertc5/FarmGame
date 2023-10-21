@@ -958,7 +958,7 @@ MonoBehaviour:
     motor: 1
     steering: 0
   maxMotorTorque: 1500
-  maxSteeringAngle: 55
+  maxSteeringAngle: 35
   centerOfMass: {fileID: 8877439248003857584}
   frontLeftWheel: {fileID: 8877439247567160722}
   frontRightWheel: {fileID: 8877439249482494678}
@@ -966,6 +966,7 @@ MonoBehaviour:
   rearRightWheel: {fileID: 8877439249655961828}
   steerinHelper: {fileID: 8877439247917426051}
   targetsParent: {fileID: 0}
+  n: 10
 --- !u!114 &3234671062246793094
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,10 +8,12 @@ public class RaceCar : Car
     Transform target;
     int targetIndex;
     float steeringWheelsAngle;
+    [SerializeField] float n = 10;
 
     private void Awake()
     {
         targets = new Transform[targetsParent.childCount];
+        //Time.timeScale = 3;
     }
 
     void Start()
@@ -33,9 +35,10 @@ public class RaceCar : Car
 
         steerinHelper.LookAt(target);
         steeringWheelsAngle = -transform.eulerAngles.y + steerinHelper.eulerAngles.y;
+        //steeringWheelsAngle = Mathf.Clamp(steeringWheelsAngle, -maxSteeringAngle, maxSteeringAngle);
 
         // reach the target
-        if (Vector3.Distance(transform.position, targets[targetIndex].position) < 10)
+        if (Vector3.Distance(transform.position, targets[targetIndex].position) < n)
         {
             if (targetIndex < targetsParent.childCount - 1)
                 targetIndex++;
