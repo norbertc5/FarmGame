@@ -67,6 +67,5 @@ public class Car : MonoBehaviour
     protected void SetCenterOfMass()
     {
         GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
-        //raceManager = FindObjectOfType<RaceManager>();  // also do this in this function
     }
 }

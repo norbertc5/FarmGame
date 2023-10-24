@@ -32,6 +32,11 @@ public class Player : PlayerManager
     [Header("To quests")]
     [HideInInspector] public bool isInWateringArea;
 
+    [Header("UI")]
+    [SerializeField] GameObject playerUIStats;
+    [SerializeField] GameObject raceUI;
+    [SerializeField] MinimapIcon minimapIcon;
+
     private void Awake()
     {
         damageIndicator = FindObjectOfType<DamageIndicator>();
@@ -58,7 +63,8 @@ public class Player : PlayerManager
         if (isPlayerInVehicle)
         {
             transform.position = actualVehicle.transform.position;
-            transform.rotation = actualVehicle.transform.rotation;
+            //transform.rotation += new Quaternion(transform.rotation.x, transform.rotation.y + 90, 0, 0);
+
         }
 
         #endregion
@@ -205,5 +211,19 @@ public class Player : PlayerManager
         Shooting.canPlayerChangeWeapon = !getOn;
         interactionSign.SetActive(!getOn);
         shooting.enabled = !getOn;
+        playerUIStats.SetActive(!getOn);
+        raceUI.SetActive(getOn);
+
+        #region Setting minimap icon
+
+        if (getOn)
+            minimapIcon.target = actualVehicle.transform;
+        else
+        {
+            minimapIcon.target = transform;
+            minimapIcon.transform.localEulerAngles = new Vector3(0, 0, 180);
+        }              
+
+        #endregion
     }
 }

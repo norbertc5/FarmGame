@@ -35,7 +35,6 @@ public class RaceCar : Car
 
         steerinHelper.LookAt(target);
         steeringWheelsAngle = -transform.eulerAngles.y + steerinHelper.eulerAngles.y;
-        //steeringWheelsAngle = Mathf.Clamp(steeringWheelsAngle, -maxSteeringAngle, maxSteeringAngle);
 
         // reach the target
         if (Vector3.Distance(transform.position, targets[targetIndex].position) < n)

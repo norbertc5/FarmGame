@@ -14,6 +14,8 @@ public class CarController : Car
     public Transform playerGetOffTrans;
     [SerializeField] TextMeshProUGUI tractorTutorialText;
     [SerializeField] GameObject getOnTrigger;
+    //[SerializeField] Transform minimapCam;
+    [SerializeField] MinimapIcon minimapIcon;
     [Header("Sounds")]
     [SerializeField] AudioClip engineStartSound;
     [SerializeField] AudioClip engineStopSound;
@@ -50,6 +52,8 @@ public class CarController : Car
             axleInfos[1].leftWheel.brakeTorque = 20000;
             axleInfos[1].rightWheel.brakeTorque = 20000;
         }
+
+        minimapIcon.transform.localEulerAngles = new Vector3(0, 0, -transform.eulerAngles.y + 180);
 
         #region Vehicle sound
 
