@@ -30,10 +30,10 @@ public class Enemy : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
-        pathfinding = GetComponent<AIPath>();
+        try { pathfinding = GetComponent<AIPath>(); } catch { }
         poolManager = FindObjectOfType<PoolManager>();
-        poolManager = FindObjectOfType<PoolManager>();
-        pathfinding = GetComponent<AIPath>();
+        //poolManager = FindObjectOfType<PoolManager>();
+        //pathfinding = GetComponent<AIPath>();
         ragdollElements = GetComponentsInChildren<DamagePointer>();
         gameManager = FindObjectOfType<GameManager>();
         player = FindObjectOfType<Player>().transform;

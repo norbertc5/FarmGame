@@ -41,19 +41,6 @@ public class HumanEnemy : Enemy
     [SerializeField] Transform[] leftArmIKTargets;
     [SerializeField] Transform[] leftArmIKHints;
 
-    [Header("Apperance")]
-    [SerializeField] SkinnedMeshRenderer skinnedMeshRenderer;
-
-    // all materials are necessary to set up random ones correctly
-    [SerializeField] Material trousers;
-    [SerializeField] Material boots;
-    [SerializeField] Material shirt;
-    [SerializeField] Material[] hairMats;
-    // random materials
-    [SerializeField] Material[] faceMats;
-    [SerializeField] Material[] skinMats;
-    [SerializeField] GameObject[] hairObjects;
-
     void Awake()
     {
         AssignComponents();
@@ -61,7 +48,6 @@ public class HumanEnemy : Enemy
         StartCoroutine(CheckDistance());
         distanceChecker.parent = null;
         damageIndicator = FindObjectOfType<DamageIndicator>();
-        //GetComponent<CharacterController>().material = noFriction;
 
         #region Setting pathfinding target
 
@@ -70,21 +56,6 @@ Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
             randomTargets[i] = randTargetsParent.GetChild(i);
 
         GetComponent<AIDestinationSetter>().target = randomTargets[Random.Range(0, randomTargets.Length)];
-
-        #endregion
-
-        #region Setting up materials
-
-        int faceIndex = Random.Range(0, faceMats.Length);
-        int hairIndex = Random.Range(0, hairMats.Length);
-        Material[] m = new Material[] {trousers, boots, shirt, skinMats[faceIndex], faceMats[faceIndex], hairMats[hairIndex] };
-        skinnedMeshRenderer.materials = m;
-        try { hairObjects[Random.Range(0, hairObjects.Length)].SetActive(true); } catch { }
-
-        for (int i = 0; i < hairObjects.Length; i++)
-        {
-            try { hairObjects[i].GetComponent<SkinnedMeshRenderer>().materials = new Material[] { hairMats[hairIndex] }; } catch { }
-        }
 
         #endregion
 
@@ -240,11 +211,11 @@ Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
                             // it works on random
                             Player playerScript = player.GetComponent<Player>();
                             if (randomNumber == 1)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER / 3 * 0);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.HEAD_DMG_MULTIPLAYER / 3);
                             else if (randomNumber > 1 && randomNumber <= 3)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER / 3 * 0);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.BODY_DMG_MULTIPLAYER / 3);
                             else if (randomNumber > 3 && randomNumber <= 5)
-                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER / 3 * 0);
+                                playerScript.GiveDamageToPlayer(actualDamage * GameManager.LIMBS_DMG_MULTIPLAYER / 3);
                         }
                     }
                     catch { }

@@ -63,8 +63,6 @@ public class Player : PlayerManager
         if (isPlayerInVehicle)
         {
             transform.position = actualVehicle.transform.position;
-            //transform.rotation += new Quaternion(transform.rotation.x, transform.rotation.y + 90, 0, 0);
-
         }
 
         #endregion
