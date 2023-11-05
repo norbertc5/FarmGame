@@ -13,7 +13,6 @@ public class RaceCar : Car
     private void Awake()
     {
         targets = new Transform[targetsParent.childCount];
-        //Time.timeScale = 3;
     }
 
     void Start()

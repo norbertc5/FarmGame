@@ -28,9 +28,9 @@ public class RandomApearanceContainer : MonoBehaviour
         trousers = Resources.Load("HumanAppearance/Trousers") as Material;
         boots = Resources.Load("HumanAppearance/Boots") as Material;
         shirt = Resources.Load("HumanAppearance/Shirt") as Material;
-        LoadMaterialsToArray("Hair", ref hairMats);
-        LoadMaterialsToArray("Faces", ref faceMats);
-        LoadMaterialsToArray("Skins", ref skinMats);
+        LoadMaterialsToArray("Hair", hairMats);
+        LoadMaterialsToArray("Faces", faceMats);
+        LoadMaterialsToArray("Skins", skinMats);
 
         // skinIndexes is a txt file which contains an id to SkinMats
         // based on skinIndexes content, skins are attached to faces
@@ -47,7 +47,7 @@ public class RandomApearanceContainer : MonoBehaviour
     }
 
     /// <summary> Load materaials from Resources/{folderName} and assign it to a list. </summary>
-    void LoadMaterialsToArray(string folderName, ref List<Material> list)
+    void LoadMaterialsToArray(string folderName, List<Material> list)
     {
         foreach(Material mat in Resources.LoadAll($"HumanAppearance/{folderName}"))
         {

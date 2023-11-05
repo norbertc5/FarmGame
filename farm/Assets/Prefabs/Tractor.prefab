@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 6935901212147846594}
   - component: {fileID: 6935901212147846592}
   - component: {fileID: 6935901212147846595}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScytheCollision
   m_TagString: Scythe
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 7.1236424, y: 1.0290691, z: 1.5619799}
+  m_Size: {x: 7.1236424, y: 1.0290691, z: 1.29}
   m_Center: {x: -0.009688933, y: -0.9543965, z: 0.28098994}
 --- !u!65 &6935901212147846595
 BoxCollider:
@@ -150,7 +150,7 @@ BoxCollider:
   m_GameObject: {fileID: 6935901212147846597}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 7.1236424, y: 1.0290691, z: 1.5619799}
   m_Center: {x: -0.009688933, y: -0.9543965, z: 0.28098994}
@@ -832,7 +832,7 @@ GameObject:
   - component: {fileID: 6935901212729420087}
   - component: {fileID: 6935901212729420085}
   - component: {fileID: 6935901212729420084}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1040,8 +1040,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6935901212745727044}
-  m_Layer: 0
-  m_Name: scythe
+  m_Layer: 14
+  m_Name: Scythe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1426,7 +1426,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6935901212988596344}
   - component: {fileID: 6935901212988596345}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Scythe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1573,7 +1573,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6935901213100332053}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Empty
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1952,7 +1952,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 3191
+    m_Bits: 19575
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2194,7 +2194,7 @@ GameObject:
   - component: {fileID: 6935901213387343907}
   - component: {fileID: 6935901213387343905}
   - component: {fileID: 6935901213387343904}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Cube.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2566,7 +2566,7 @@ GameObject:
   - component: {fileID: 6935901213624916469}
   - component: {fileID: 6935901213624916467}
   - component: {fileID: 6935901213624916466}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScytheBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}

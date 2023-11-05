@@ -271,10 +271,4 @@ Transform randTargetsParent = GameObject.Find("RandomEnemysTargets").transform;
         else
             return true;
     }
-
-   /* private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ignore Raycast"))
-            Debug.Log("dupa");
-    }*/
 }

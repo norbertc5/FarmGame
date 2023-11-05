@@ -111,6 +111,9 @@ public class Enemy : MonoBehaviour
     {
         // enemy dies after touch a scythe
         if(other.CompareTag("Scythe"))
+        {
+            Debug.Log("aaaa");
             GetDamage(100);
+        }
     }
 }

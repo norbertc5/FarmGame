@@ -14,8 +14,8 @@ public class CarController : Car
     public Transform playerGetOffTrans;
     [SerializeField] TextMeshProUGUI tractorTutorialText;
     [SerializeField] GameObject getOnTrigger;
-    //[SerializeField] Transform minimapCam;
     [SerializeField] MinimapIcon minimapIcon;
+    public bool isSteeringByPlayer;
     [Header("Sounds")]
     [SerializeField] AudioClip engineStartSound;
     [SerializeField] AudioClip engineStopSound;
@@ -86,6 +86,7 @@ public class CarController : Car
         tractorTutorialText.gameObject.SetActive(getOn);
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
         getOnTrigger.SetActive(!getOn);
+        isSteeringByPlayer = getOn;
 
         if (getOn)
             StartCoroutine(PlayEngineStartSound());

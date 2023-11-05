@@ -414,6 +414,7 @@
 "Assets/FirstGearGames/Utilities/Structures/RangeInt.cs"
 "Assets/FirstGearGames/Utilities/Transforms.cs"
 "Assets/FirstGearGames/Utilities/Vectors.cs"
+"Assets/Scripts/BenchWithSpectators.cs"
 "Assets/Scripts/Enemy/Boar.cs"
 "Assets/Scripts/Enemy/Cat.cs"
 "Assets/Scripts/Enemy/Cow.cs"

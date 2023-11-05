@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using System;
 using UnityEngine.UIElements;
+using Unity.VisualScripting;
 
 public class RaceManager : MonoBehaviour
 {
@@ -16,13 +17,14 @@ public class RaceManager : MonoBehaviour
     public Car[] carsInWiningOrder = new Car[3];
     [HideInInspector] public Transform[] checkpoints;
     [SerializeField] Car[] carsInRace;
-    [SerializeField] Car playerCar;
+    [SerializeField] CarController playerCar;
     [SerializeField] Transform checkpointsParent;
     [SerializeField] int timeScale = 1;
     RaceCollisionForAllCars playerLapCounter;
-    RaceCollisionForAllCars firstCarLapCounter;
+    //RaceCollisionForAllCars firstCarLapCounter;
     Transform actualCheckpoint;
     int checkpointIndex;
+    bool hasRaceStarted;
 
     [Header("UI")]
     [SerializeField] TextMeshProUGUI playerPlaceText;
@@ -44,8 +46,8 @@ public class RaceManager : MonoBehaviour
     void Update()
     {
         // first car in race
-        firstCarLapCounter = carsInRace.OrderBy(t => Vector3.Distance(actualCheckpoint.transform.position,t.transform.position))
-            .FirstOrDefault().GetComponent<RaceCollisionForAllCars>();
+        //firstCarLapCounter = carsInRace.OrderBy(t => Vector3.Distance(actualCheckpoint.transform.position,t.transform.position))
+          //  .FirstOrDefault().GetComponent<RaceCollisionForAllCars>();
 
         carsInWiningOrder = carsInRace.OrderBy(t => Vector3.Distance(actualCheckpoint.transform.position, t.transform.position)).ToArray();
 
@@ -66,6 +68,9 @@ public class RaceManager : MonoBehaviour
 
         playerPlaceText.text = $"Place: {Array.IndexOf(carsInWiningOrder, playerCar) + 1} / {carsInRace.Length}";
         lapText.text = $"Lap: {playerLapCounter.Lap}";
+
+        if (playerCar.isSteeringByPlayer && !hasRaceStarted)
+            StartRace();
     }
 
     /// <summary> Automaticly set next checkpoint. To use when a car touch one. </summary>
@@ -74,5 +79,14 @@ public class RaceManager : MonoBehaviour
         checkpointIndex = newCheckpointId;
         try { actualCheckpoint = checkpoints[checkpointIndex]; }
         catch { actualCheckpoint = checkpoints[1]; };
+    }
+
+    void StartRace()
+    {
+        foreach(Car c in carsInRace)
+        {
+            try { c.GetComponent<RaceCar>().enabled = true; } catch { }
+        }
+        hasRaceStarted = true;
     }
 }
